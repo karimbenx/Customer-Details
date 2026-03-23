@@ -31,28 +31,17 @@ const App = () => {
   }, []);
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      minHeight: '100vh', 
-      backgroundColor: 'var(--bg-home)', 
-      color: 'var(--text-primary)', 
-      fontFamily: "'Outfit', 'Inter', sans-serif"
-    }}>
-      {/* Professional Header */}
+    <div className="app-wrapper">
+      {/* Professional Header - Fixed */}
       <header style={{ 
-        height: 'auto',
-        minHeight: '72px',
+        height: '72px',
         background: '#fff', 
         borderBottom: '1px solid var(--border-light)',
         display: 'flex',
-        flexWrap: 'wrap',
         alignItems: 'center',
         padding: '0 2rem',
         justifyContent: 'space-between',
         zIndex: 100,
-        position: 'sticky',
-        top: 0,
         boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '3rem', flexWrap: 'wrap' }}>
@@ -117,8 +106,8 @@ const App = () => {
         </div>
       </header>
 
-      {/* Responsive Main Section */}
-      <main style={{ flex: 1, width: '100%' }}>
+      {/* Main Section - Internal Scrolling */}
+      <main className="main-content">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

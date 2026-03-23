@@ -17,29 +17,44 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-body {
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
   font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-home);
   color: var(--text-primary);
-  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
-}
-
-#root {
-  min-height: 100vh;
+  overflow: hidden;
 }
 
 * {
   box-sizing: border-box;
 }
 
+#root {
+  height: 100%;
+}
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  background-color: var(--bg-home);
+}
+
 .main-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem;
 }
 
 .glass-card {

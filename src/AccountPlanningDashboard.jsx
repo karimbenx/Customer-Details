@@ -639,15 +639,19 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             ))}
           </div>
 
-          <div style={{
-            marginTop: '3rem',
-            padding: '2rem',
-            background: '#fff',
-            borderRadius: '16px',
+          <div style={{ 
+            marginTop: '2rem', 
+            padding: '1.5rem 2rem', 
+            background: 'rgba(255, 255, 255, 0.95)', 
+            backdropFilter: 'blur(8px)',
+            borderRadius: '1.25rem', 
             border: '1px solid var(--border-light)',
             display: 'flex',
             justifyContent: 'center',
-            boxShadow: '0 -10px 15px -10px rgba(0,0,0,0.05)'
+            boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.05)',
+            position: 'sticky',
+            bottom: '1rem',
+            zIndex: 100
           }}>
             <button
               onClick={handleSave}
