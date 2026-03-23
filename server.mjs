@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Neon Postgres Connection (Standard connection string)
-const sql = postgres(process.env.DATABASE_URL, { ssl: 'require' });
+const sql = postgres(process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL, { ssl: 'require' });
 
 // Function: Initialize Neon Table (Self-Healing)
 const initDB = async () => {
