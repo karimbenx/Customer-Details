@@ -61,6 +61,22 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const currentIndex = sections.findIndex(s => s.id === activeSectionId);
+
+  const goToNext = () => {
+    if (currentIndex < sections.length - 1) {
+      setActiveSectionId(sections[currentIndex + 1].id);
+    }
+  };
+
+  const goToPrev = () => {
+    if (currentIndex > 0) {
+      setActiveSectionId(sections[currentIndex - 1].id);
+    } else {
+      setActiveSectionId(null);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -89,17 +105,29 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
       icon: <Briefcase />,
       content: (
         <div className="grid gap-6">
-          <div className="form-group">
-            <label>Company Name</label>
-            <input className="input-field" value={formData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="form-group">
+              <label>Company Name</label>
+              <input className="input-field" placeholder="Acme Corp" value={formData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Industry</label>
+              <input className="input-field" placeholder="e.g. Technology" value={formData.industry} onChange={(e) => handleInputChange('industry', e.target.value)} />
+            </div>
           </div>
           <div className="form-group">
-            <label>Industry</label>
-            <input className="input-field" value={formData.industry} onChange={(e) => handleInputChange('industry', e.target.value)} />
+            <label>Contact Person</label>
+            <input className="input-field" placeholder="Full name of contact" value={formData.contactPerson} onChange={(e) => handleInputChange('contactPerson', e.target.value)} />
           </div>
-          <div className="form-group">
-            <label>Email</label>
-            <input className="input-field" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="form-group">
+              <label>Email Address</label>
+              <input className="input-field" type="email" placeholder="email@company.com" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Phone / WhatsApp</label>
+              <input className="input-field" placeholder="+1 555-0123" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} />
+            </div>
           </div>
         </div>
       )
@@ -113,11 +141,15 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
         <div className="grid gap-6">
           <div className="form-group">
             <label>Review & History</label>
-            <textarea className="textarea-field" value={formData.review} onChange={(e) => handleInputChange('review', e.target.value)} />
+            <textarea className="textarea-field" placeholder="Recent milestones and history..." value={formData.review} onChange={(e) => handleInputChange('review', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Expectations</label>
+            <textarea className="textarea-field" placeholder="What does the customer expect?" value={formData.expectations} onChange={(e) => handleInputChange('expectations', e.target.value)} />
           </div>
           <div className="form-group">
             <label>Strategic Goals</label>
-            <textarea className="textarea-field" value={formData.goals} onChange={(e) => handleInputChange('goals', e.target.value)} />
+            <input className="input-field" placeholder="Top 3 business goals" value={formData.goals} onChange={(e) => handleInputChange('goals', e.target.value)} />
           </div>
         </div>
       )
@@ -132,15 +164,20 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           <div className="form-group">
             <label>Primary XR Focus</label>
             <select className="select-field" value={formData.xrFocus} onChange={(e) => handleInputChange('xrFocus', e.target.value)}>
-              <option value="None">None</option>
-              <option value="AR">AR</option>
-              <option value="VR">VR</option>
-              <option value="AI">AI</option>
+              <option value="None">Select Interest...</option>
+              <option value="AR">Augmented Reality (AR)</option>
+              <option value="VR">Virtual Reality (VR)</option>
+              <option value="MR">Mixed Reality (MR)</option>
+              <option value="AI">AI / Machine Learning</option>
             </select>
           </div>
           <div className="form-group">
-            <label>Key Drivers</label>
-            <textarea className="textarea-field" value={formData.drivers} onChange={(e) => handleInputChange('drivers', e.target.value)} />
+            <label>Business Landscape</label>
+            <textarea className="textarea-field" placeholder="Current market challenges..." value={formData.landscape} onChange={(e) => handleInputChange('landscape', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Key Business Drivers</label>
+            <textarea className="textarea-field" placeholder="What drives their decisions?" value={formData.drivers} onChange={(e) => handleInputChange('drivers', e.target.value)} />
           </div>
         </div>
       )
@@ -153,18 +190,38 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
       content: (
         <div className="grid gap-6">
           <div className="form-group">
-            <label>Specific Opportunities</label>
-            <textarea className="textarea-field" value={formData.opportunities} onChange={(e) => handleInputChange('opportunities', e.target.value)} />
+            <label>Upsell Potential</label>
+            <select className="select-field" value={formData.canSellExtra} onChange={(e) => handleInputChange('canSellExtra', e.target.value)}>
+              <option value="Unsure">Select Potential...</option>
+              <option value="Definitely">Definitely (High Potential)</option>
+              <option value="Maybe">Maybe (Review Needed)</option>
+              <option value="Unlikely">Unlikely (Low Interest)</option>
+            </select>
           </div>
           <div className="form-group">
-            <label>Strategy</label>
-            <div style={{ display: 'flex', gap: '2rem' }}>
-              <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input type="radio" checked={formData.strategy === 'Protect'} onChange={() => handleInputChange('strategy', 'Protect')} /> Protect
-              </label>
-              <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input type="radio" checked={formData.strategy === 'Grow'} onChange={() => handleInputChange('strategy', 'Grow')} /> Grow
-              </label>
+            <label>Specific Opportunities</label>
+            <textarea className="textarea-field" placeholder="Detail specific growth paths..." value={formData.opportunities} onChange={(e) => handleInputChange('opportunities', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              Primary Strategy
+              <HelpCircle size={14} color="var(--text-muted)" />
+            </label>
+            <div style={{ display: 'flex', gap: '2rem', padding: '0.5rem 0' }}>
+              <div className="tooltip-container">
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
+                  <input type="radio" style={{ width: '18px', height: '18px' }} checked={formData.strategy === 'Protect'} onChange={() => handleInputChange('strategy', 'Protect')} /> 
+                  Protect
+                </label>
+                <span className="tooltip-text">Defend existing accounts and maintain satisfaction.</span>
+              </div>
+              <div className="tooltip-container">
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
+                  <input type="radio" style={{ width: '18px', height: '18px' }} checked={formData.strategy === 'Grow'} onChange={() => handleInputChange('strategy', 'Grow')} /> 
+                  Grow
+                </label>
+                <span className="tooltip-text">Expand footprint and increase account value.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -178,12 +235,12 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
       content: (
         <div className="grid gap-6">
           <div className="form-group">
-            <label>Key Executives</label>
-            <textarea className="textarea-field" value={formData.stakeholders} onChange={(e) => handleInputChange('stakeholders', e.target.value)} />
+            <label>Key Executives & Stakeholders</label>
+            <textarea className="textarea-field" placeholder="List influential points of contact..." value={formData.stakeholders} onChange={(e) => handleInputChange('stakeholders', e.target.value)} />
           </div>
           <div className="form-group">
             <label>Advancement Plan</label>
-            <textarea className="textarea-field" value={formData.plan} onChange={(e) => handleInputChange('plan', e.target.value)} />
+            <textarea className="textarea-field" placeholder="How will we strengthen these ties?" value={formData.plan} onChange={(e) => handleInputChange('plan', e.target.value)} />
           </div>
         </div>
       )
@@ -197,11 +254,11 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
         <div className="grid gap-6">
           <div className="form-group">
             <label>Critical Actions</label>
-            <textarea className="textarea-field" value={formData.actions} onChange={(e) => handleInputChange('actions', e.target.value)} />
+            <textarea className="textarea-field" placeholder="Immediate steps required..." value={formData.actions} onChange={(e) => handleInputChange('actions', e.target.value)} />
           </div>
           <div className="form-group">
             <label>Risk Mitigation</label>
-            <textarea className="textarea-field" value={formData.riskMitigation} onChange={(e) => handleInputChange('riskMitigation', e.target.value)} />
+            <textarea className="textarea-field" placeholder="Potential blockers and solutions..." value={formData.riskMitigation} onChange={(e) => handleInputChange('riskMitigation', e.target.value)} />
           </div>
         </div>
       )
@@ -289,15 +346,74 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
                     <h2 style={{ marginBottom: '2rem' }}>{sections.find(s => s.id === activeSectionId).title}</h2>
                     {sections.find(s => s.id === activeSectionId).content}
                   </div>
-                  <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                  <div style={{ 
+                    marginTop: '2rem', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    paddingTop: '1.5rem',
+                    borderTop: '1px solid var(--border-light)'
+                  }}>
                     <button 
-                      onClick={handleSave} 
-                      disabled={isSaving}
-                      className="save-button"
-                      style={{ width: 'auto', padding: '1rem 3rem', background: 'var(--accent)', borderRadius: '12px' }}
+                      onClick={goToPrev}
+                      style={{ 
+                        padding: '1rem 2rem', 
+                        background: 'var(--bg-home)', 
+                        border: 'none', 
+                        borderRadius: '12px', 
+                        fontWeight: 700, 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem' 
+                      }}
                     >
-                      {isSaving ? 'Synchronizing...' : 'Save Module Data'}
+                      <ChevronRight size={18} style={{ transform: 'rotate(180deg)' }} />
+                      {currentIndex === 0 ? 'Home' : 'Back'}
                     </button>
+
+                    {currentIndex < sections.length - 1 ? (
+                      <button 
+                        onClick={goToNext}
+                        style={{ 
+                          padding: '1rem 2.5rem', 
+                          background: 'var(--accent)', 
+                          color: '#fff', 
+                          border: 'none', 
+                          borderRadius: '12px', 
+                          fontWeight: 800, 
+                          cursor: 'pointer', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '0.75rem', 
+                          boxShadow: '0 8px 16px var(--accent-glow)'
+                        }}
+                      >
+                        Next Module
+                        <ChevronRight size={18} />
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={handleSave} 
+                        disabled={isSaving}
+                        className="save-button"
+                        style={{
+                          width: 'auto', 
+                          padding: '1.1rem 3.5rem', 
+                          background: 'var(--success)', 
+                          color: '#fff',
+                          borderRadius: '14px', 
+                          fontWeight: 900,
+                          boxShadow: '0 10px 20px rgba(16, 185, 129, 0.3)',
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '0.8rem'
+                        }}
+                      >
+                        <Save size={20} />
+                        {isSaving ? 'Synchronizing...' : 'Finalize & Sync Strategy'}
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               )}
