@@ -80,8 +80,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
   const toggleSection = (sectionId) => {
     setExpandedSections(prev =>
       prev.includes(sectionId)
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
+        ? [] // Close if clicking the same one
+        : [sectionId] // Open only the new one
     );
   };
 
