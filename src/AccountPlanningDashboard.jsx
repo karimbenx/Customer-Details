@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  TrendingUp, 
-  Target, 
-  Lightbulb, 
-  Users, 
-  ClipboardCheck, 
-  ChevronRight, 
-  PlusCircle, 
-  Save, 
+import {
+  TrendingUp,
+  Target,
+  Lightbulb,
+  Users,
+  ClipboardCheck,
+  ChevronRight,
+  PlusCircle,
+  Save,
   HelpCircle,
   Briefcase
 } from 'lucide-react';
@@ -23,6 +23,9 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
   const [showToast, setShowToast] = useState(false);
   const [pastRecords, setPastRecords] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+
+  // State for accordion expansion
+  const [expandedSections, setExpandedSections] = useState(['customerDetails']);
 
   const initialFormState = {
     companyName: '',
@@ -45,10 +48,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     riskMitigation: ''
   };
 
-  // Form State
   const [formData, setFormData] = useState(initialFormState);
 
-  // Fetch all plans
   const fetchPlans = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/plans`);
@@ -61,7 +62,6 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     }
   };
 
-  // Fetch on load
   React.useEffect(() => {
     const init = async () => {
       await fetchPlans();
@@ -77,6 +77,14 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     }));
   };
 
+  const toggleSection = (sectionId) => {
+    setExpandedSections(prev =>
+      prev.includes(sectionId)
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -85,9 +93,9 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      
+
       const result = await response.json();
-      
+
       if (response.ok && result.data) {
         setFormData(result.data);
         setSelectedId(result.data._id);
@@ -112,17 +120,20 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
   const loadPlan = (plan) => {
     setFormData(plan);
     setSelectedId(plan._id);
+    // Expand first section by default when loading
+    setExpandedSections(['customerDetails']);
   };
 
   const createNewPlan = () => {
     setFormData(initialFormState);
     setSelectedId(null);
+    setExpandedSections(['customerDetails']);
   };
 
   const deletePlan = async (id, e) => {
     e.stopPropagation();
     if (!window.confirm('Are you sure you want to delete this plan?')) return;
-    
+
     try {
       const res = await fetch(`${API_BASE_URL}/api/plan/${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -137,71 +148,75 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
   const sections = [
     {
       id: 'customerDetails',
-      title: '00 Customer Overview',
-      icon: <Briefcase color="var(--primary)" size={24} />,
-      description: 'Primary contact information and company profile.',
+      title: 'Customer Overview',
+      subtitle: 'Primary contact information and profile',
+      icon: <Briefcase size={20} />,
       content: (
         <div className="grid gap-4">
-          <div className="form-group">
-            <label>Company Name</label>
-            <input 
-              className="input-field" 
-              placeholder="e.g. Acme Corp"
-              value={formData.companyName || ''}
-              onChange={(e) => handleInputChange('companyName', e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label>Business Industry</label>
-            <input 
-              className="input-field" 
-              placeholder="e.g. Technology, Manufacturing..."
-              value={formData.industry || ''}
-              onChange={(e) => handleInputChange('industry', e.target.value)}
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="form-group">
+              <label>Company Name</label>
+              <input
+                className="input-field"
+                placeholder="e.g. Acme Corp"
+                value={formData.companyName || ''}
+                onChange={(e) => handleInputChange('companyName', e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Business Industry</label>
+              <input
+                className="input-field"
+                placeholder="e.g. Technology, Manufacturing..."
+                value={formData.industry || ''}
+                onChange={(e) => handleInputChange('industry', e.target.value)}
+              />
+            </div>
           </div>
           <div className="form-group">
             <label>Contact Person</label>
-            <input 
-              className="input-field" 
+            <input
+              className="input-field"
               placeholder="Primary Point of Contact"
               value={formData.contactPerson || ''}
               onChange={(e) => handleInputChange('contactPerson', e.target.value)}
             />
           </div>
-          <div className="form-group">
-            <label>Email Address</label>
-            <input 
-              className="input-field" 
-              type="email"
-              placeholder="contact@company.com"
-              value={formData.email || ''}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label>Phone / WhatsApp</label>
-            <input 
-              className="input-field" 
-              placeholder="+1 (555) 000-0000"
-              value={formData.phone || ''}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="form-group">
+              <label>Email Address</label>
+              <input
+                className="input-field"
+                type="email"
+                placeholder="contact@company.com"
+                value={formData.email || ''}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Phone / WhatsApp</label>
+              <input
+                className="input-field"
+                placeholder="+1 (555) 000-0000"
+                value={formData.phone || ''}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+              />
+            </div>
           </div>
         </div>
       )
     },
     {
       id: 'accountPotential',
-      title: '01 Account Potential',
-      icon: <TrendingUp color="var(--accent-blue)" size={24} />,
-      description: 'Review account history, determine "white space" and set goals for the next quarter.',
+      title: 'Account Potential',
+      subtitle: 'History, whitespace and strategic goals',
+      icon: <TrendingUp size={20} />,
       content: (
         <div className="grid gap-4">
           <div className="form-group">
             <label>Review & History</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="Enter current status and history..."
               value={formData.review}
               onChange={(e) => handleInputChange('review', e.target.value)}
@@ -209,8 +224,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           </div>
           <div className="form-group">
             <label>Expectations</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="What are the customer expectations?"
               value={formData.expectations}
               onChange={(e) => handleInputChange('expectations', e.target.value)}
@@ -218,8 +233,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           </div>
           <div className="form-group">
             <label>Goals</label>
-            <input 
-              className="input-field" 
+            <input
+              className="input-field"
               placeholder="Set strategic goals..."
               value={formData.goals}
               onChange={(e) => handleInputChange('goals', e.target.value)}
@@ -230,14 +245,14 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     },
     {
       id: 'customerPriorities',
-      title: '02 Customer Priorities',
-      icon: <Target color="var(--accent-purple)" size={24} />,
-      description: "Understand customer's business drivers and focus areas like AR/VR/XR.",
+      title: 'Customer Priorities',
+      subtitle: 'Business drivers and technology focus',
+      icon: <Target size={20} />,
       content: (
         <div className="grid gap-4">
           <div className="form-group">
             <label>Primary XR Focus</label>
-            <select 
+            <select
               className="select-field"
               value={formData.xrFocus}
               onChange={(e) => handleInputChange('xrFocus', e.target.value)}
@@ -251,8 +266,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           </div>
           <div className="form-group">
             <label>Business Landscape</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="Describe market landscape..."
               value={formData.landscape}
               onChange={(e) => handleInputChange('landscape', e.target.value)}
@@ -260,8 +275,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           </div>
           <div className="form-group">
             <label>Key Business Drivers</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="Primary drivers for innovation..."
               value={formData.drivers}
               onChange={(e) => handleInputChange('drivers', e.target.value)}
@@ -272,14 +287,14 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     },
     {
       id: 'opportunityId',
-      title: '03 Opportunity Identification',
-      icon: <Lightbulb color="var(--accent-orange)" size={24} />,
-      description: 'Determine sales opportunities and decide whether we can upsell/cross-sell.',
+      title: 'Opportunity Identification',
+      subtitle: 'Sales opportunities and strategy',
+      icon: <Lightbulb size={20} />,
       content: (
         <div className="grid gap-4">
           <div className="form-group">
             <label>Can we sell extra items?</label>
-            <select 
+            <select
               className="select-field"
               value={formData.canSellExtra}
               onChange={(e) => handleInputChange('canSellExtra', e.target.value)}
@@ -293,8 +308,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           </div>
           <div className="form-group">
             <label>Specific Opportunities</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="Detail specific products or services..."
               value={formData.opportunities}
               onChange={(e) => handleInputChange('opportunities', e.target.value)}
@@ -302,21 +317,23 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           </div>
           <div className="form-group">
             <label>Primary Strategy</label>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input 
-                  type="radio" 
-                  name="strategy" 
-                  value="Protect" 
+            <div style={{ display: 'flex', gap: '2rem', padding: '0.5rem 0' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                <input
+                  type="radio"
+                  name="strategy"
+                  value="Protect"
+                  style={{ width: '18px', height: '18px' }}
                   checked={formData.strategy === 'Protect'}
                   onChange={(e) => handleInputChange('strategy', e.target.value)}
                 /> Protect
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input 
-                  type="radio" 
-                  name="strategy" 
-                  value="Grow" 
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                <input
+                  type="radio"
+                  name="strategy"
+                  value="Grow"
+                  style={{ width: '18px', height: '18px' }}
                   checked={formData.strategy === 'Grow'}
                   onChange={(e) => handleInputChange('strategy', e.target.value)}
                 /> Grow
@@ -328,15 +345,15 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     },
     {
       id: 'relationship',
-      title: '04 Relationship Alignment',
-      icon: <Users color="var(--accent-green)" size={24} />,
-      description: 'Identify influential relationships critical to account success.',
+      title: 'Relationship Alignment',
+      subtitle: 'Stakeholders and influence mapping',
+      icon: <Users size={20} />,
       content: (
         <div className="grid gap-4">
           <div className="form-group">
             <label>Key Executives & Stakeholders</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="List influential names and their impact..."
               value={formData.stakeholders}
               onChange={(e) => handleInputChange('stakeholders', e.target.value)}
@@ -344,8 +361,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           </div>
           <div className="form-group">
             <label>Advancement Plan</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="Plan to advance influential relationships..."
               value={formData.plan}
               onChange={(e) => handleInputChange('plan', e.target.value)}
@@ -356,15 +373,15 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     },
     {
       id: 'actionPlan',
-      title: '05 Action Plan Coordination',
-      icon: <ClipboardCheck color="var(--accent-red)" size={24} />,
-      description: 'Assign critical actions and mitigate risks for the account team.',
+      title: 'Action Plan Coordination',
+      subtitle: 'Critical actions and risk mitigation',
+      icon: <ClipboardCheck size={20} />,
       content: (
         <div className="grid gap-4">
           <div className="form-group">
             <label>Critical Actions</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="What needs to be done immediately?"
               value={formData.actions}
               onChange={(e) => handleInputChange('actions', e.target.value)}
@@ -372,8 +389,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
           </div>
           <div className="form-group">
             <label>Risk Mitigation</label>
-            <textarea 
-              className="textarea-field" 
+            <textarea
+              className="textarea-field"
               placeholder="Potential hurdles and how to avoid them..."
               value={formData.riskMitigation}
               onChange={(e) => handleInputChange('riskMitigation', e.target.value)}
@@ -386,175 +403,273 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#fff' }}>
-        <p>Loading Enterprise Dashboard...</p>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+        <div className="loader">Loading Dashboard...</div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', width: '100%', background: 'var(--bg-color)' }}>
-      {/* Records View: Professional White Table */}
+    <div style={{ minHeight: '100vh', width: '100%', padding: '2rem 1rem' }}>
+      {/* Records View */}
       {view === 'records' && (
-        <div style={{ flex: 1, padding: '2rem 1rem' }}>
-           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                 <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)' }}>Saved Records</h1>
-                 <button 
-                  onClick={() => {
-                     createNewPlan();
-                     window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
-                  }}
-                  style={{
-                    padding: '0.6rem 1rem',
-                    background: 'var(--primary)',
-                    color: '#fff',
-                    borderRadius: '8px',
-                    border: 'none',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    fontSize: '0.85rem'
-                  }}
-                 >
-                    + Add New Entry
-                 </button>
-              </div>
+        <div className="main-container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>Strategic Records</h1>
+              <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>Manage and review your saved client profiles</p>
+            </div>
+            <button
+              onClick={() => {
+                createNewPlan();
+                window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
+              }}
+              style={{
+                padding: '0.75rem 1.25rem',
+                background: 'var(--accent)',
+                color: '#fff',
+                borderRadius: '12px',
+                border: 'none',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 6px rgba(37, 99, 235, 0.2)'
+              }}
+            >
+              + Create New Profile
+            </button>
+          </div>
 
-              {pastRecords.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '4rem', background: '#fff', borderRadius: '12px', border: '1px solid var(--border-light)', color: 'var(--text-muted)' }}>
-                   No records discovered yet.
-                </div>
-              ) : (
-                <div className="main-card" style={{ background: '#fff', borderRadius: '12px', border: '1px solid var(--border-light)', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
-                      <thead>
-                         <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border-light)' }}>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>COMPANY</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>CONTACT</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>INDUSTRY</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>STRATEGY</th>
-                            <th style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>ACTIONS</th>
-                         </tr>
-                      </thead>
-                      <tbody>
-                         {pastRecords.map((plan) => (
-                            <tr key={plan._id} style={{ borderBottom: '1px solid var(--border-light)', transition: 'background 0.2s' }}>
-                               <td style={{ padding: '1rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>{plan.companyName}</td>
-                               <td style={{ padding: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{plan.contactPerson}</td>
-                               <td style={{ padding: '1rem', fontSize: '0.85rem' }}>
-                                  <span style={{ background: 'var(--primary-glow)', color: 'var(--primary)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
-                                     {plan.industry}
-                                  </span>
-                               </td>
-                               <td style={{ padding: '1rem', fontSize: '0.85rem' }}>
-                                  <span style={{ color: plan.strategy === 'Grow' ? 'var(--accent-green)' : 'var(--accent-orange)', fontWeight: 600 }}>
-                                     {plan.strategy}
-                                  </span>
-                               </td>
-                               <td style={{ padding: '1rem' }}>
-                                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                     <button 
-                                      onClick={() => {
-                                         loadPlan(plan);
-                                         window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
-                                      }}
-                                      style={{ background: '#fff', color: 'var(--text-main)', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '0.3rem 0.6rem', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
-                                     >Edit</button>
-                                     <button 
-                                      onClick={(e) => deletePlan(plan._id, e)}
-                                      style={{ background: 'transparent', color: 'var(--accent-red)', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
-                                     >Delete</button>
-                                  </div>
-                               </td>
-                            </tr>
-                         ))}
-                      </tbody>
-                   </table>
-                </div>
-              )}
-           </div>
+          <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+            {pastRecords.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '5rem 2rem', color: 'var(--text-muted)' }}>
+                <Users size={48} style={{ marginBottom: '1rem', opacity: 0.2 }} />
+                <p>No records found. Start by creating a new client profile.</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table className="pro-table">
+                  <thead>
+                    <tr>
+                      <th>Company</th>
+                      <th>Contact</th>
+                      <th>Industry</th>
+                      <th>Strategy</th>
+                      <th style={{ textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pastRecords.map((plan) => (
+                      <tr key={plan._id}>
+                        <td>
+                          <div style={{ fontWeight: 700 }}>{plan.companyName}</div>
+                        </td>
+                        <td style={{ color: 'var(--text-secondary)' }}>{plan.contactPerson}</td>
+                        <td>
+                          <span className="badge badge-primary">{plan.industry}</span>
+                        </td>
+                        <td>
+                          <span style={{
+                            fontWeight: 700,
+                            color: plan.strategy === 'Grow' ? 'var(--success)' : 'var(--warning)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem'
+                          }}>
+                            {plan.strategy === 'Grow' ? <TrendingUp size={14} /> : <Target size={14} />}
+                            {plan.strategy}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                            <button
+                              onClick={() => {
+                                loadPlan(plan);
+                                window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
+                              }}
+                              style={{
+                                background: 'var(--bg-home)',
+                                color: 'var(--text-primary)',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '0.5rem 0.75rem',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                fontWeight: 700
+                              }}
+                            >Edit</button>
+                            <button
+                              onClick={(e) => deletePlan(plan._id, e)}
+                              style={{
+                                background: 'transparent',
+                                color: 'var(--danger)',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                fontWeight: 700
+                              }}
+                            >Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Form View: Professional Clean Input */}
+      {/* Form View */}
       {view === 'form' && (
-        <div style={{ flex: 1, padding: '2rem 1rem' }}>
-          <div className="main-card" style={{ 
-            maxWidth: '800px', 
-            margin: '0 auto', 
-            background: '#fff', 
-            padding: '2.5rem', 
-            borderRadius: '16px', 
-            border: '1px solid var(--border-light)',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }}>
-            <AnimatePresence>
-              {showToast && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--accent-green)', color: '#fff', padding: '0.75rem 1.5rem', borderRadius: '8px', zIndex: 1000, fontWeight: 700, boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
-                  Stored Successfully
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <div style={{ marginBottom: '2.5rem' }}>
-              <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.5rem' }}>{selectedId ? 'Modify Record' : 'Client Profile Intake'}</h1>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Fill out the details below to sync with the central database.</p>
-            </div>
-
-            <div style={{ display: 'grid', gap: '2rem' }}>
-              {sections.map((section) => (
-                <div key={section.id} style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '2rem' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                      <div style={{ color: 'var(--primary)' }}>{section.icon}</div>
-                      <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>{section.title}</h2>
-                   </div>
-                   <div style={{ paddingLeft: '0' }}>
-                     {section.content}
-                   </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ marginTop: '2.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-              <button 
-                onClick={handleSave}
-                disabled={isSaving}
-                style={{ 
-                  flex: 2,
-                  minWidth: '200px',
-                  padding: '1rem',
-                  fontSize: '0.95rem',
-                  fontWeight: 700,
-                  borderRadius: '10px',
-                  background: 'var(--primary)',
+        <div className="main-container">
+          <AnimatePresence>
+            {showToast && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                style={{
+                  position: 'fixed',
+                  bottom: '2rem',
+                  right: '2rem',
+                  background: 'var(--success)',
                   color: '#fff',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'opacity 0.2s'
+                  padding: '1rem 2rem',
+                  borderRadius: '12px',
+                  zIndex: 1000,
+                  fontWeight: 700,
+                  boxShadow: '0 10px 15px rgba(16, 185, 129, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
                 }}
               >
-                {isSaving ? 'Syncing...' : 'Sync to Records'}
-              </button>
-              
-              {selectedId && (
-                 <button 
-                  onClick={createNewPlan}
-                  style={{ 
-                    flex: 1,
-                    minWidth: '150px',
-                    padding: '1rem',
-                    borderRadius: '10px',
-                    background: '#f8fafc',
-                    color: 'var(--text-main)',
-                    border: '1px solid var(--border-light)',
-                    fontWeight: 600,
-                    cursor: 'pointer'
-                  }}
-                 >
-                    Start New
-                 </button>
-              )}
+                <ClipboardCheck size={20} />
+                Profile Synchronized
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div>
+              <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>
+                {selectedId ? 'Edit Profile' : 'Client Profile Intake'}
+              </h1>
+              <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '1rem' }}>
+                Populate all strategic dimensions to synchronize with the enterprise database.
+              </p>
             </div>
+            {selectedId && (
+              <button
+                onClick={createNewPlan}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  background: 'var(--bg-home)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-light)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '0.85rem'
+                }}
+              >
+                + Reset Form
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: 'grid', gap: '0.5rem' }}>
+            {sections.map((section) => (
+              <div
+                key={section.id}
+                className={`accordion-section ${expandedSections.includes(section.id) ? 'expanded' : ''}`}
+              >
+                <button
+                  className="accordion-header"
+                  onClick={() => toggleSection(section.id)}
+                >
+                  <div className="accordion-title-container">
+                    <div className="accordion-icon-box">
+                      {section.icon}
+                    </div>
+                    <div>
+                      <h3 className="accordion-title">{section.title}</h3>
+                      <p className="accordion-description">{section.subtitle}</p>
+                    </div>
+                  </div>
+                  <motion.div
+                    animate={{ rotate: expandedSections.includes(section.id) ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronRight size={20} color="var(--text-muted)" />
+                  </motion.div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {expandedSections.includes(section.id) && (
+                    <motion.div
+                      key="content"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <div className="accordion-content">
+                        <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem', marginTop: '0.5rem' }}>
+                          {section.content}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+
+          <div style={{
+            marginTop: '3rem',
+            padding: '2rem',
+            background: '#fff',
+            borderRadius: '16px',
+            border: '1px solid var(--border-light)',
+            display: 'flex',
+            justifyContent: 'center',
+            boxShadow: '0 -10px 15px -10px rgba(0,0,0,0.05)'
+          }}>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              style={{
+                width: '100%',
+                maxWidth: '400px',
+                padding: '1.25rem',
+                fontSize: '1rem',
+                fontWeight: 800,
+                borderRadius: '12px',
+                background: 'var(--accent)',
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                opacity: isSaving ? 0.7 : 1,
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.75rem'
+              }}
+            >
+              {isSaving ? (
+                <>Synchronizing...</>
+              ) : (
+                <>
+                  <Save size={20} />
+                  Synchronize to Database
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}
@@ -563,3 +678,4 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
 };
 
 export default AccountPlanningDashboard;
+

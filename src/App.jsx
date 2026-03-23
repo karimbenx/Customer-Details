@@ -16,11 +16,10 @@ import IntelligenceDashboard from './IntelligenceDashboard';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('client-details'); // Default to Client Details
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const navItems = [
-    { id: 'client-details', label: 'Client Details', icon: <Users size={18} /> },
-    { id: 'records', label: 'Records', icon: <BarChart3 size={18} /> }
+    { id: 'client-details', label: 'Client Profiles', icon: <Users size={18} /> },
+    { id: 'records', label: 'Database', icon: <BarChart3 size={18} /> }
   ];
 
   React.useEffect(() => {
@@ -36,64 +35,84 @@ const App = () => {
       display: 'flex', 
       flexDirection: 'column', 
       minHeight: '100vh', 
-      backgroundColor: '#f8fafc', 
-      color: '#1e293b', 
-      fontFamily: "'Inter', sans-serif"
+      backgroundColor: 'var(--bg-home)', 
+      color: 'var(--text-primary)', 
+      fontFamily: "'Outfit', 'Inter', sans-serif"
     }}>
-      {/* Bright Header */}
+      {/* Professional Header */}
       <header style={{ 
         height: 'auto',
-        minHeight: '70px',
+        minHeight: '72px',
         background: '#fff', 
-        borderBottom: '1px solid #e2e8f0',
+        borderBottom: '1px solid var(--border-light)',
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
-        padding: '0.5rem 1.5rem',
+        padding: '0 2rem',
         justifyContent: 'space-between',
         zIndex: 100,
         position: 'sticky',
-        top: 0
+        top: 0,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3rem', flexWrap: 'wrap' }}>
           <div style={{ 
-            fontWeight: 800, 
-            fontSize: '1.25rem', 
-            color: '#2563eb', 
-            letterSpacing: '-0.03em' 
-          }}>CLIENT<span style={{ color: '#1e293b' }}>SYNC</span></div>
+            fontWeight: 900, 
+            fontSize: '1.4rem', 
+            color: 'var(--primary)', 
+            letterSpacing: '-0.04em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <div style={{ width: '32px', height: '32px', background: 'var(--accent)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Zap size={18} color="#fff" fill="#fff" />
+            </div>
+            <span>CLIENT<span style={{ color: 'var(--accent)' }}>SYNC</span></span>
+          </div>
 
-          <nav style={{ display: 'flex' }}>
+          <nav style={{ display: 'flex', height: '72px' }}>
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 style={{
-                  padding: '1rem 1.25rem',
+                  padding: '0 1.5rem',
                   height: '100%',
                   background: 'none',
                   border: 'none',
-                  borderBottom: activeTab === item.id ? '3px solid #2563eb' : '3px solid transparent',
-                  color: activeTab === item.id ? '#2563eb' : '#64748b',
-                  fontSize: '0.9rem',
-                  fontWeight: activeTab === item.id ? 700 : 600,
+                  borderBottom: activeTab === item.id ? '3px solid var(--accent)' : '3px solid transparent',
+                  color: activeTab === item.id ? 'var(--accent)' : 'var(--text-secondary)',
+                  fontSize: '0.95rem',
+                  fontWeight: activeTab === item.id ? 800 : 600,
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
+                  transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  gap: '0.6rem'
                 }}
               >
-                {item.icon}
+                <div style={{ opacity: activeTab === item.id ? 1 : 0.7 }}>
+                  {item.icon}
+                </div>
                 {item.label}
               </button>
             ))}
           </nav>
         </div>
 
-        <div className="header-version" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' }}>
-            Desktop / <span style={{ color: '#2563eb' }}>v2.0 Light</span>
+        <div className="header-version" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ 
+            fontSize: '0.7rem', 
+            fontWeight: 800, 
+            color: 'var(--text-muted)', 
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            background: 'var(--bg-home)',
+            padding: '0.4rem 0.8rem',
+            borderRadius: '6px'
+          }}>
+            Enterprise / <span style={{ color: 'var(--accent)' }}>v3.0 PRO</span>
           </div>
         </div>
       </header>
@@ -103,10 +122,10 @@ const App = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
             style={{ width: '100%' }}
           >
             {activeTab === 'client-details' && (
@@ -122,5 +141,6 @@ const App = () => {
     </div>
   );
 };
+
 
 export default App;
