@@ -316,28 +316,41 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             />
           </div>
           <div className="form-group">
-            <label>Primary Strategy</label>
-            <div style={{ display: 'flex', gap: '2rem', padding: '0.5rem 0' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
-                <input
-                  type="radio"
-                  name="strategy"
-                  value="Protect"
-                  style={{ width: '18px', height: '18px' }}
-                  checked={formData.strategy === 'Protect'}
-                  onChange={(e) => handleInputChange('strategy', e.target.value)}
-                /> Protect
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
-                <input
-                  type="radio"
-                  name="strategy"
-                  value="Grow"
-                  style={{ width: '18px', height: '18px' }}
-                  checked={formData.strategy === 'Grow'}
-                  onChange={(e) => handleInputChange('strategy', e.target.value)}
-                /> Grow
-              </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              Primary Strategy
+              <HelpCircle size={14} color="var(--text-muted)" />
+            </label>
+            <div style={{ display: 'flex', gap: '1.5rem', padding: '0.5rem 0' }}>
+              <div className="tooltip-container">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                  <input 
+                    type="radio" 
+                    name="strategy" 
+                    value="Protect" 
+                    style={{ width: '18px', height: '18px' }}
+                    checked={formData.strategy === 'Protect'}
+                    onChange={(e) => handleInputChange('strategy', e.target.value)}
+                  /> Protect
+                </label>
+                <span className="tooltip-text">
+                  Focus on retaining existing accounts, defending market position, and maintaining customer satisfaction.
+                </span>
+              </div>
+              <div className="tooltip-container">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                  <input 
+                    type="radio" 
+                    name="strategy" 
+                    value="Grow" 
+                    style={{ width: '18px', height: '18px' }}
+                    checked={formData.strategy === 'Grow'}
+                    onChange={(e) => handleInputChange('strategy', e.target.value)}
+                  /> Grow
+                </label>
+                <span className="tooltip-text">
+                  Focus on cross-selling, upselling, and identifying "white space" to increase overall account revenue.
+                </span>
+              </div>
             </div>
           </div>
         </div>

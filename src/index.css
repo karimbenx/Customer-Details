@@ -167,7 +167,51 @@ body {
   padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
-/* Form Fields */
+/* Existing styles... */
+
+.tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 220px;
+  background-color: var(--primary);
+  color: #fff;
+  text-align: left;
+  border-radius: 8px;
+  padding: 0.75rem;
+  position: absolute;
+  z-index: 100;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -110px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+}
+
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--primary) transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
 .form-group {
   display: flex;
   flex-direction: column;
