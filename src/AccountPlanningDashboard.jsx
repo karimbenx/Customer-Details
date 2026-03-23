@@ -153,7 +153,7 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
       icon: <Briefcase size={20} />,
       content: (
         <div className="grid gap-4">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
             <div className="form-group">
               <label>Company Name</label>
               <input
@@ -182,7 +182,7 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
               onChange={(e) => handleInputChange('contactPerson', e.target.value)}
             />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
             <div className="form-group">
               <label>Email Address</label>
               <input
@@ -579,33 +579,35 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             )}
           </div>
 
-          <div style={{ display: 'grid', gap: '0.5rem' }}>
+          <div className="grid-layout">
             {sections.map((section) => (
-              <div
-                key={section.id}
+              <div 
+                key={section.id} 
                 className={`accordion-section ${expandedSections.includes(section.id) ? 'expanded' : ''}`}
               >
-                <button
+                <button 
                   className="accordion-header"
                   onClick={() => toggleSection(section.id)}
                 >
                   <div className="accordion-title-container">
-                    <div className="accordion-icon-box">
-                      {section.icon}
+                    <div className="accordion-top-row">
+                      <div className="accordion-icon-box">
+                        {section.icon}
+                      </div>
+                      <motion.div
+                        animate={{ rotate: expandedSections.includes(section.id) ? 90 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronRight size={20} color="var(--text-muted)" />
+                      </motion.div>
                     </div>
                     <div>
                       <h3 className="accordion-title">{section.title}</h3>
                       <p className="accordion-description">{section.subtitle}</p>
                     </div>
                   </div>
-                  <motion.div
-                    animate={{ rotate: expandedSections.includes(section.id) ? 90 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ChevronRight size={20} color="var(--text-muted)" />
-                  </motion.div>
                 </button>
-
+                
                 <AnimatePresence initial={false}>
                   {expandedSections.includes(section.id) && (
                     <motion.div

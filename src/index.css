@@ -55,27 +55,56 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
-/* Accordion Specific Styles */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Accordion Specific Styles - Card Style */
 .accordion-section {
   border: 1px solid var(--border-light);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   overflow: hidden;
-  margin-bottom: 1rem;
   background: #ffffff;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+  height: max-content;
+}
+
+.accordion-section:hover {
+  border-color: var(--accent-glow);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .accordion-section.expanded {
   border-color: var(--accent);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  grid-column: span 1; /* Keep it in its column for now, but could span if desired */
 }
+
+/* Optional: Make expanded section span multiple columns if it's the first one or specifically chosen */
+/* But for a consistent 3-column layout, we'll keep span 1 */
 
 .accordion-header {
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  flex-direction: column;
+  padding: 1.5rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -84,38 +113,54 @@ body {
 }
 
 .accordion-header:hover {
-  background: var(--bg-home);
+  background: #fdfdfd;
 }
 
 .accordion-title-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 1rem;
+  width: 100%;
+}
+
+.accordion-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .accordion-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--bg-home);
   color: var(--accent);
+  transition: all 0.3s ease;
+}
+
+.accordion-section.expanded .accordion-icon-box {
+  background: var(--accent);
+  color: #fff;
 }
 
 .accordion-title {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 .accordion-description {
-  margin: 0.25rem 0 0 0;
+  margin: 0.5rem 0 0 0;
   font-size: 0.85rem;
   color: var(--text-secondary);
   font-weight: 500;
+  line-height: 1.4;
 }
 
 .accordion-content {
