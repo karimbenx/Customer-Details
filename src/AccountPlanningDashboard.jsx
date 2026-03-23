@@ -602,34 +602,30 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
                   className="accordion-header"
                   onClick={() => toggleSection(section.id)}
                 >
-                  <div className="accordion-title-container">
-                    <div className="accordion-top-row">
-                      <div className="accordion-icon-box">
-                        {section.icon}
-                      </div>
-                      <motion.div
-                        animate={{ rotate: expandedSections.includes(section.id) ? 90 : 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ChevronRight size={20} color="var(--text-muted)" />
-                      </motion.div>
-                    </div>
-                    <div>
-                      <h3 className="accordion-title">{section.title}</h3>
-                      <p className="accordion-description">{section.subtitle}</p>
-                    </div>
+                  <div className="accordion-icon-box">
+                    {section.icon}
                   </div>
+                  <div style={{ flex: 1 }}>
+                    <h3 className="accordion-title">{section.title}</h3>
+                    <p className="accordion-description">{section.subtitle}</p>
+                  </div>
+                  <motion.div
+                    animate={{ rotate: expandedSections.includes(section.id) ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronRight size={20} color="var(--text-muted)" />
+                  </motion.div>
                 </button>
                 
                 <AnimatePresence initial={false}>
                   {expandedSections.includes(section.id) && (
                     <motion.div
                       key="content"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
-                      style={{ overflow: 'hidden' }}
+                      style={{ overflow: 'visible' }} /* Critical for tooltips */
                     >
                       <div className="accordion-content">
                         <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem', marginTop: '0.5rem' }}>
