@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "nodemon server.js",
+    "server": "nodemon server.mjs",
     "start-dev": "concurrently \"npm run dev\" \"npm run server\"",
-    "start": "node server.js",
+    "start": "node server.mjs",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
@@ -21,8 +22,8 @@
     "mongoose": "^9.3.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "vite": "^8.0.1",
-    "@vitejs/plugin-react": "^6.0.1"
+    "serverless-http": "^4.0.0",
+    "vite": "^8.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

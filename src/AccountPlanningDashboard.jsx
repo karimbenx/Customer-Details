@@ -25,36 +25,24 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
   const [selectedId, setSelectedId] = useState(null);
 
   const initialFormState = {
-    customerDetails: {
-      companyName: '',
-      contactPerson: '',
-      email: '',
-      phone: '',
-      industry: ''
-    },
-    accountPotential: {
-      review: '',
-      expectations: '',
-      goals: ''
-    },
-    customerPriorities: {
-      xrFocus: 'None',
-      landscape: '',
-      drivers: ''
-    },
-    opportunityIdentification: {
-      canSellExtra: 'Unsure',
-      opportunities: '',
-      strategy: 'Grow'
-    },
-    relationshipAlignment: {
-      stakeholders: '',
-      plan: ''
-    },
-    actionPlanCoordination: {
-      actions: '',
-      riskMitigation: ''
-    }
+    companyName: '',
+    contactPerson: '',
+    email: '',
+    phone: '',
+    industry: '',
+    review: '',
+    expectations: '',
+    goals: '',
+    xrFocus: 'None',
+    landscape: '',
+    drivers: '',
+    canSellExtra: 'Unsure',
+    opportunities: '',
+    strategy: 'Grow',
+    stakeholders: '',
+    plan: '',
+    actions: '',
+    riskMitigation: ''
   };
 
   // Form State
@@ -82,13 +70,10 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     init();
   }, []);
 
-  const handleInputChange = (section, field, value) => {
+  const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
-      }
+      [field]: value
     }));
   };
 
@@ -162,8 +147,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <input 
               className="input-field" 
               placeholder="e.g. Acme Corp"
-              value={formData.customerDetails?.companyName || ''}
-              onChange={(e) => handleInputChange('customerDetails', 'companyName', e.target.value)}
+              value={formData.companyName || ''}
+              onChange={(e) => handleInputChange('companyName', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -171,8 +156,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <input 
               className="input-field" 
               placeholder="e.g. Technology, Manufacturing..."
-              value={formData.customerDetails?.industry || ''}
-              onChange={(e) => handleInputChange('customerDetails', 'industry', e.target.value)}
+              value={formData.industry || ''}
+              onChange={(e) => handleInputChange('industry', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -180,8 +165,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <input 
               className="input-field" 
               placeholder="Primary Point of Contact"
-              value={formData.customerDetails?.contactPerson || ''}
-              onChange={(e) => handleInputChange('customerDetails', 'contactPerson', e.target.value)}
+              value={formData.contactPerson || ''}
+              onChange={(e) => handleInputChange('contactPerson', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -190,8 +175,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
               className="input-field" 
               type="email"
               placeholder="contact@company.com"
-              value={formData.customerDetails?.email || ''}
-              onChange={(e) => handleInputChange('customerDetails', 'email', e.target.value)}
+              value={formData.email || ''}
+              onChange={(e) => handleInputChange('email', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -199,8 +184,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <input 
               className="input-field" 
               placeholder="+1 (555) 000-0000"
-              value={formData.customerDetails?.phone || ''}
-              onChange={(e) => handleInputChange('customerDetails', 'phone', e.target.value)}
+              value={formData.phone || ''}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
             />
           </div>
         </div>
@@ -218,8 +203,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="Enter current status and history..."
-              value={formData.accountPotential.review}
-              onChange={(e) => handleInputChange('accountPotential', 'review', e.target.value)}
+              value={formData.review}
+              onChange={(e) => handleInputChange('review', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -227,8 +212,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="What are the customer expectations?"
-              value={formData.accountPotential.expectations}
-              onChange={(e) => handleInputChange('accountPotential', 'expectations', e.target.value)}
+              value={formData.expectations}
+              onChange={(e) => handleInputChange('expectations', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -236,8 +221,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <input 
               className="input-field" 
               placeholder="Set strategic goals..."
-              value={formData.accountPotential.goals}
-              onChange={(e) => handleInputChange('accountPotential', 'goals', e.target.value)}
+              value={formData.goals}
+              onChange={(e) => handleInputChange('goals', e.target.value)}
             />
           </div>
         </div>
@@ -254,8 +239,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <label>Primary XR Focus</label>
             <select 
               className="select-field"
-              value={formData.customerPriorities.xrFocus}
-              onChange={(e) => handleInputChange('customerPriorities', 'xrFocus', e.target.value)}
+              value={formData.xrFocus}
+              onChange={(e) => handleInputChange('xrFocus', e.target.value)}
             >
               <option value="None">None</option>
               <option value="AR">Augmented Reality (AR)</option>
@@ -269,8 +254,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="Describe market landscape..."
-              value={formData.customerPriorities.landscape}
-              onChange={(e) => handleInputChange('customerPriorities', 'landscape', e.target.value)}
+              value={formData.landscape}
+              onChange={(e) => handleInputChange('landscape', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -278,8 +263,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="Primary drivers for innovation..."
-              value={formData.customerPriorities.drivers}
-              onChange={(e) => handleInputChange('customerPriorities', 'drivers', e.target.value)}
+              value={formData.drivers}
+              onChange={(e) => handleInputChange('drivers', e.target.value)}
             />
           </div>
         </div>
@@ -296,8 +281,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <label>Can we sell extra items?</label>
             <select 
               className="select-field"
-              value={formData.opportunityIdentification.canSellExtra}
-              onChange={(e) => handleInputChange('opportunityIdentification', 'canSellExtra', e.target.value)}
+              value={formData.canSellExtra}
+              onChange={(e) => handleInputChange('canSellExtra', e.target.value)}
             >
               <option value="Unsure">Select...</option>
               <option value="Definitely">Definitely (High Potential)</option>
@@ -311,8 +296,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="Detail specific products or services..."
-              value={formData.opportunityIdentification.opportunities}
-              onChange={(e) => handleInputChange('opportunityIdentification', 'opportunities', e.target.value)}
+              value={formData.opportunities}
+              onChange={(e) => handleInputChange('opportunities', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -323,8 +308,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
                   type="radio" 
                   name="strategy" 
                   value="Protect" 
-                  checked={formData.opportunityIdentification.strategy === 'Protect'}
-                  onChange={(e) => handleInputChange('opportunityIdentification', 'strategy', e.target.value)}
+                  checked={formData.strategy === 'Protect'}
+                  onChange={(e) => handleInputChange('strategy', e.target.value)}
                 /> Protect
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -332,8 +317,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
                   type="radio" 
                   name="strategy" 
                   value="Grow" 
-                  checked={formData.opportunityIdentification.strategy === 'Grow'}
-                  onChange={(e) => handleInputChange('opportunityIdentification', 'strategy', e.target.value)}
+                  checked={formData.strategy === 'Grow'}
+                  onChange={(e) => handleInputChange('strategy', e.target.value)}
                 /> Grow
               </label>
             </div>
@@ -353,8 +338,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="List influential names and their impact..."
-              value={formData.relationshipAlignment.stakeholders}
-              onChange={(e) => handleInputChange('relationshipAlignment', 'stakeholders', e.target.value)}
+              value={formData.stakeholders}
+              onChange={(e) => handleInputChange('stakeholders', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -362,8 +347,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="Plan to advance influential relationships..."
-              value={formData.relationshipAlignment.plan}
-              onChange={(e) => handleInputChange('relationshipAlignment', 'plan', e.target.value)}
+              value={formData.plan}
+              onChange={(e) => handleInputChange('plan', e.target.value)}
             />
           </div>
         </div>
@@ -381,8 +366,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="What needs to be done immediately?"
-              value={formData.actionPlanCoordination.actions}
-              onChange={(e) => handleInputChange('actionPlanCoordination', 'actions', e.target.value)}
+              value={formData.actions}
+              onChange={(e) => handleInputChange('actions', e.target.value)}
             />
           </div>
           <div className="form-group">
@@ -390,8 +375,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
             <textarea 
               className="textarea-field" 
               placeholder="Potential hurdles and how to avoid them..."
-              value={formData.actionPlanCoordination.riskMitigation}
-              onChange={(e) => handleInputChange('actionPlanCoordination', 'riskMitigation', e.target.value)}
+              value={formData.riskMitigation}
+              onChange={(e) => handleInputChange('riskMitigation', e.target.value)}
             />
           </div>
         </div>
@@ -454,16 +439,16 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
                       <tbody>
                          {pastRecords.map((plan) => (
                             <tr key={plan._id} style={{ borderBottom: '1px solid var(--border-light)', transition: 'background 0.2s' }}>
-                               <td style={{ padding: '1rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>{plan.customerDetails?.companyName}</td>
-                               <td style={{ padding: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{plan.customerDetails?.contactPerson}</td>
+                               <td style={{ padding: '1rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>{plan.companyName}</td>
+                               <td style={{ padding: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{plan.contactPerson}</td>
                                <td style={{ padding: '1rem', fontSize: '0.85rem' }}>
                                   <span style={{ background: 'var(--primary-glow)', color: 'var(--primary)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
-                                     {plan.customerDetails?.industry}
+                                     {plan.industry}
                                   </span>
                                </td>
                                <td style={{ padding: '1rem', fontSize: '0.85rem' }}>
-                                  <span style={{ color: plan.opportunityIdentification?.strategy === 'Grow' ? 'var(--accent-green)' : 'var(--accent-orange)', fontWeight: 600 }}>
-                                     {plan.opportunityIdentification?.strategy}
+                                  <span style={{ color: plan.strategy === 'Grow' ? 'var(--accent-green)' : 'var(--accent-orange)', fontWeight: 600 }}>
+                                     {plan.strategy}
                                   </span>
                                </td>
                                <td style={{ padding: '1rem' }}>
