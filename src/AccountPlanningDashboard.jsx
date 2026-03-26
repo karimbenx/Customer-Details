@@ -159,7 +159,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           </div>
           <div className="form-group">
             <label>Strategic Goals</label>
-            <input className="input-field" placeholder="Top 3 business goals" value={formData.goals} onChange={(e) => handleInputChange('goals', e.target.value)} />
+            <textarea className="textarea-field" placeholder="Top 3 business goals" value={formData.goals} onChange={(e) => handleInputChange('goals', e.target.value)} />
           </div>
         </div>
       )
@@ -541,10 +541,6 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
         </div>
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-          <div style={{ textAlign: 'center', marginBottom: activeSectionId ? '1rem' : '2.5rem' }}>
-            <h1 style={{ fontSize: activeSectionId ? '1.8rem' : '2.5rem', margin: 0 }}>Client Intelligence Dashboard</h1>
-          </div>
-
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: activeSectionId ? 'repeat(auto-fit, minmax(100px, 1fr))' : 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -558,22 +554,24 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 onClick={() => setActiveSectionId(activeSectionId === s.id ? null : s.id)}
                 className={`accordion-section ${activeSectionId === s.id ? 'active' : ''}`}
                 style={{
-                  padding: activeSectionId ? '0.75rem' : '2rem',
+                  padding: activeSectionId ? '1rem 1.15rem' : '2.25rem 2rem',
                   display: 'flex',
                   flexDirection: activeSectionId ? 'row' : 'column',
-                  alignItems: 'center',
-                  gap: activeSectionId ? '0.5rem' : '1rem',
+                  alignItems: activeSectionId ? 'center' : 'flex-start',
+                  justifyContent: 'center',
+                  gap: activeSectionId ? '0.75rem' : '1.15rem',
                   background: activeSectionId === s.id ? 'var(--accent)' : '#fff',
                   border: activeSectionId === s.id ? 'none' : '1px solid var(--border-light)',
                   color: activeSectionId === s.id ? '#fff' : 'inherit',
                   cursor: 'pointer',
-                  borderRadius: '12px'
+                  borderRadius: '12px',
+                  minHeight: activeSectionId ? '82px' : '124px'
                 }}
               >
-                <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 16 : 24 })}</div>
+                <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 18 : 26 })}</div>
                 <div style={{ overflow: 'hidden' }}>
-                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.7rem' : '1.1rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.title}</h3>
-                  {!activeSectionId && <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.7 }}>{s.subtitle}</p>}
+                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.82rem' : '1.12rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.title}</h3>
+                  {!activeSectionId && <p style={{ margin: 0, fontSize: '0.84rem', opacity: 0.7 }}>{s.subtitle}</p>}
                 </div>
               </button>
             ))}
@@ -591,7 +589,6 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '2rem' }}
                 >
                   <div style={{ flex: 1, overflowY: 'auto', paddingRight: '1rem' }}>
-                    <h2 style={{ marginBottom: '2rem' }}>{sections.find(s => s.id === activeSectionId).title}</h2>
                     {sections.find(s => s.id === activeSectionId).content}
                   </div>
                   <div style={{ 
@@ -605,15 +602,16 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                     <button 
                       onClick={goToPrev}
                       style={{ 
-                        padding: '1rem 2rem', 
+                        padding: '0.8rem 1.4rem', 
                         background: 'var(--bg-home)', 
                         border: 'none', 
-                        borderRadius: '12px', 
+                        borderRadius: '10px', 
                         fontWeight: 700, 
                         cursor: 'pointer', 
                         display: 'flex', 
                         alignItems: 'center', 
-                        gap: '0.5rem' 
+                        gap: '0.45rem',
+                        fontSize: '0.92rem' 
                       }}
                     >
                       <ChevronRight size={18} style={{ transform: 'rotate(180deg)' }} />
@@ -624,16 +622,17 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                       <button 
                         onClick={goToNext}
                         style={{ 
-                          padding: '1rem 2.5rem', 
+                          padding: '0.8rem 1.5rem', 
                           background: 'var(--accent)', 
                           color: '#fff', 
                           border: 'none', 
-                          borderRadius: '12px', 
+                          borderRadius: '10px', 
                           fontWeight: 800, 
                           cursor: 'pointer', 
                           display: 'flex', 
                           alignItems: 'center', 
-                          gap: '0.75rem', 
+                          gap: '0.5rem', 
+                          fontSize: '0.92rem',
                           boxShadow: '0 8px 16px var(--accent-glow)'
                         }}
                       >
@@ -647,18 +646,19 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                         className="save-button"
                         style={{
                           width: 'auto', 
-                          padding: '1.1rem 3.5rem', 
+                          padding: '0.85rem 1.6rem', 
                           background: 'var(--success)', 
                           color: '#fff',
-                          borderRadius: '14px', 
+                          borderRadius: '10px', 
                           fontWeight: 900,
+                          fontSize: '0.92rem',
                           boxShadow: '0 10px 20px rgba(16, 185, 129, 0.3)',
                           display: 'flex', 
                           alignItems: 'center', 
-                          gap: '0.8rem'
+                          gap: '0.55rem'
                         }}
                       >
-                        <Save size={20} />
+                        <Save size={18} />
                         {isSaving ? 'Synchronizing...' : 'Finalize & Sync Strategy'}
                       </button>
                     )}
