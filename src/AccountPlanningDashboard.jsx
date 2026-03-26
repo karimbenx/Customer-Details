@@ -409,7 +409,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   if (loading) return <div className="loader">Initializing Strategic Dashboard...</div>;
 
   return (
-    <div className="main-container" style={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
+    <div className="main-container" style={{ display: 'flex', flexDirection: 'column' }}>
       <AnimatePresence>
         {showToast && (
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="toast-success">
@@ -540,13 +540,13 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           </div>
         </div>
       ) : (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ 
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: activeSectionId ? 'center' : 'flex-start',
-            gap: activeSectionId ? '0.75rem' : '1rem',
-            marginBottom: '1.5rem',
+            gap: activeSectionId ? '0.65rem' : '0.85rem',
+            marginBottom: '1.25rem',
             transition: 'all 0.3s ease'
           }}>
             {sections.map(s => (
@@ -555,32 +555,32 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 onClick={() => setActiveSectionId(activeSectionId === s.id ? null : s.id)}
                 className={`accordion-section ${activeSectionId === s.id ? 'active' : ''}`}
                 style={{
-                  padding: activeSectionId ? '1rem 1.15rem' : '2.25rem 2rem',
+                  padding: activeSectionId ? '0.85rem 1rem' : '1.2rem 1.35rem',
                   display: 'flex',
                   flexDirection: activeSectionId ? 'row' : 'column',
                   alignItems: activeSectionId ? 'center' : 'flex-start',
                   justifyContent: 'center',
-                  gap: activeSectionId ? '0.75rem' : '1.15rem',
+                  gap: activeSectionId ? '0.6rem' : '0.85rem',
                   background: activeSectionId === s.id ? 'var(--accent)' : '#fff',
                   border: activeSectionId === s.id ? 'none' : '1px solid var(--border-light)',
                   color: activeSectionId === s.id ? '#fff' : 'inherit',
                   cursor: 'pointer',
                   borderRadius: '12px',
-                  minHeight: activeSectionId ? '82px' : '112px',
-                  width: activeSectionId ? '176px' : '268px',
+                  minHeight: activeSectionId ? '70px' : '82px',
+                  width: activeSectionId ? '154px' : '220px',
                   maxWidth: '100%'
                 }}
               >
-                <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 18 : 26 })}</div>
+                <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 16 : 22 })}</div>
                 <div style={{ overflow: 'hidden' }}>
-                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.82rem' : '1.12rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.title}</h3>
-                  {!activeSectionId && <p style={{ margin: 0, fontSize: '0.84rem', opacity: 0.7 }}>{s.subtitle}</p>}
+                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.title}</h3>
+                  {!activeSectionId && <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.7 }}>{s.subtitle}</p>}
                 </div>
               </button>
             ))}
           </div>
 
-          <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+          <div style={{ position: 'relative' }}>
             <AnimatePresence mode="wait">
               {activeSectionId && (
                 <motion.div
@@ -589,35 +589,35 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   className="glass-card"
-                  style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '2rem' }}
+                  style={{ display: 'flex', flexDirection: 'column', padding: '2rem' }}
                 >
-                  <div style={{ flex: 1, overflowY: 'auto', paddingRight: '1rem' }}>
+                  <div style={{ overflowY: 'auto', paddingRight: '1rem', maxHeight: '56vh' }}>
                     {sections.find(s => s.id === activeSectionId).content}
                   </div>
                   <div style={{ 
-                    marginTop: '2rem', 
+                    marginTop: '1.5rem', 
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
-                    paddingTop: '1.5rem',
+                    paddingTop: '1.1rem',
                     borderTop: '1px solid var(--border-light)'
                   }}>
                     <button 
                       onClick={goToPrev}
                       style={{ 
-                        padding: '0.8rem 1.4rem', 
+                        padding: '0.55rem 0.95rem', 
                         background: 'var(--bg-home)', 
                         border: 'none', 
-                        borderRadius: '10px', 
+                        borderRadius: '9px', 
                         fontWeight: 700, 
                         cursor: 'pointer', 
                         display: 'flex', 
                         alignItems: 'center', 
                         gap: '0.45rem',
-                        fontSize: '0.92rem' 
+                        fontSize: '0.82rem' 
                       }}
                     >
-                      <ChevronRight size={18} style={{ transform: 'rotate(180deg)' }} />
+                      <ChevronRight size={15} style={{ transform: 'rotate(180deg)' }} />
                       {currentIndex === 0 ? 'Home' : 'Back'}
                     </button>
 
@@ -625,22 +625,22 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                       <button 
                         onClick={goToNext}
                         style={{ 
-                          padding: '0.8rem 1.5rem', 
+                          padding: '0.6rem 1rem', 
                           background: 'var(--accent)', 
                           color: '#fff', 
                           border: 'none', 
-                          borderRadius: '10px', 
+                          borderRadius: '9px', 
                           fontWeight: 800, 
                           cursor: 'pointer', 
                           display: 'flex', 
                           alignItems: 'center', 
-                          gap: '0.5rem', 
-                          fontSize: '0.92rem',
+                          gap: '0.4rem', 
+                          fontSize: '0.82rem',
                           boxShadow: '0 8px 16px var(--accent-glow)'
                         }}
                       >
                         Next Module
-                        <ChevronRight size={18} />
+                        <ChevronRight size={15} />
                       </button>
                     ) : (
                       <button 
@@ -649,19 +649,19 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                         className="save-button"
                         style={{
                           width: 'auto', 
-                          padding: '0.85rem 1.6rem', 
+                          padding: '0.62rem 1.05rem', 
                           background: 'var(--success)', 
                           color: '#fff',
-                          borderRadius: '10px', 
+                          borderRadius: '9px', 
                           fontWeight: 900,
-                          fontSize: '0.92rem',
+                          fontSize: '0.82rem',
                           boxShadow: '0 10px 20px rgba(16, 185, 129, 0.3)',
                           display: 'flex', 
                           alignItems: 'center', 
-                          gap: '0.55rem'
+                          gap: '0.42rem'
                         }}
                       >
-                        <Save size={18} />
+                        <Save size={15} />
                         {isSaving ? 'Synchronizing...' : 'Finalize & Sync Strategy'}
                       </button>
                     )}
