@@ -202,6 +202,13 @@ html, body {
   opacity: 1;
 }
 
+.tooltip-text-inline {
+  bottom: calc(100% + 10px);
+  left: 50%;
+  margin-left: -110px;
+  z-index: 30;
+}
+
 .tooltip-text {
   visibility: hidden;
   width: 220px;

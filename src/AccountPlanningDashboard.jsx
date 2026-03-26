@@ -217,20 +217,20 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
               Primary Strategy
               <HelpCircle size={14} color="var(--text-muted)" />
             </label>
-            <div style={{ display: 'flex', gap: '2rem', padding: '0.5rem 0' }}>
+            <div style={{ display: 'flex', gap: '1.5rem', padding: '0.35rem 0 0.1rem', flexWrap: 'wrap' }}>
               <div className="tooltip-container">
-                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
                   <input type="radio" style={{ width: '18px', height: '18px' }} checked={formData.strategy === 'Protect'} onChange={() => handleInputChange('strategy', 'Protect')} /> 
                   Protect
                 </label>
-                <span className="tooltip-text">Defend existing accounts and maintain satisfaction.</span>
+                <span className="tooltip-text tooltip-text-inline">Defend existing accounts and maintain satisfaction.</span>
               </div>
               <div className="tooltip-container">
-                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
                   <input type="radio" style={{ width: '18px', height: '18px' }} checked={formData.strategy === 'Grow'} onChange={() => handleInputChange('strategy', 'Grow')} /> 
                   Grow
                 </label>
-                <span className="tooltip-text">Expand footprint and increase account value.</span>
+                <span className="tooltip-text tooltip-text-inline">Expand footprint and increase account value.</span>
               </div>
             </div>
           </div>
