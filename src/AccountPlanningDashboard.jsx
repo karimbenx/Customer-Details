@@ -412,12 +412,12 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             <table className="pro-table">
               <thead>
                 <tr>
-                  <th>Company & Industry</th>
+                  <th>Company &amp; Industry</th>
                   <th>Contact Person</th>
                   <th>Primary Contact</th>
                   <th>Extra Contacts</th>
                   <th>Strategy</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
+                  {user?.role === 'admin' && <th style={{ textAlign: 'right' }}>Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -468,16 +468,16 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                           {r.strategy}
                         </span>
                       </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                          <button 
-                            onClick={() => handleEdit(r)}
-                            className="action-btn edit"
-                            title="Edit Plan"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          {user?.role === 'admin' && (
+                      {user?.role === 'admin' && (
+                        <td>
+                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                            <button 
+                              onClick={() => handleEdit(r)}
+                              className="action-btn edit"
+                              title="Edit Plan"
+                            >
+                              <Edit size={16} />
+                            </button>
                             <button 
                               onClick={() => handleDelete(r._id)}
                               className="action-btn delete"
@@ -485,9 +485,9 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                             >
                               <Trash2 size={16} />
                             </button>
-                          )}
-                        </div>
-                      </td>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))
                 )}
