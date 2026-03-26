@@ -230,6 +230,23 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 </label>
               </div>
             </div>
+            <div
+              style={{
+                marginTop: '0.75rem',
+                padding: '0.9rem 1rem',
+                borderRadius: '12px',
+                background: 'var(--bg-home)',
+                border: '1px solid var(--border-light)',
+                color: 'var(--text-secondary)',
+                fontSize: '0.86rem',
+                fontWeight: 600,
+                lineHeight: 1.5
+              }}
+            >
+              {formData.strategy === 'Protect'
+                ? 'Protect: Defend existing accounts and maintain satisfaction.'
+                : 'Grow: Expand footprint and increase account value.'}
+            </div>
           </div>
         </div>
       )
