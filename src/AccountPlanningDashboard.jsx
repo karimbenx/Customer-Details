@@ -42,8 +42,8 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Account Potential',
     subtitle: 'History and strategic goals',
     fields: [
-      { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'full' },
-      { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'full' },
+      { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'half' },
+      { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'half' },
       { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' },
       { key: 'proposal', label: 'Proposal (Number only)', type: 'number', placeholder: 'Enter proposal amount', width: 'half' },
       { key: 'revisedProposal', label: 'Revised Proposal (Number only)', type: 'number', placeholder: 'Enter revised proposal amount', width: 'half' }
@@ -105,6 +105,12 @@ const normalizeField = (field, defaultField) => {
       ...merged,
       label: 'Primary Focus',
       options: Array.from(new Set([...(merged.options || []), 'Experience Centre']))
+    };
+  }
+  if (merged.key === 'review' || merged.key === 'expectations') {
+    return {
+      ...merged,
+      width: merged.width === 'full' ? 'half' : merged.width
     };
   }
   return merged;
