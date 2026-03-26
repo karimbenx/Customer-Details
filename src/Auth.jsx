@@ -4,13 +4,17 @@ import { Zap, LogIn, UserPlus, Lock, User, ShieldCheck } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
-const Auth = ({ onLogin }) => {
+const Auth = ({ onLogin, initialError = '' }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('employee');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(initialError);
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    setError(initialError);
+  }, [initialError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

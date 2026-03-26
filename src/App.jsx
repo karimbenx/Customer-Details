@@ -17,6 +17,9 @@ import Auth from './Auth';
 
 const AUTH_STORAGE_KEY = 'clientsync-auth-session';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const TAB_ID_STORAGE_KEY = 'clientsync-tab-id';
+const TAB_HEARTBEAT_MS = 5000;
+const TAB_STALE_MS = 15000;
 
 const decodeJwtPayload = (token) => {
   try {
@@ -31,25 +34,41 @@ const decodeJwtPayload = (token) => {
   }
 };
 
+const getTabId = () => {
+  const existingTabId = window.sessionStorage.getItem(TAB_ID_STORAGE_KEY);
+  if (existingTabId) return existingTabId;
+
+  const newTabId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  window.sessionStorage.setItem(TAB_ID_STORAGE_KEY, newTabId);
+  return newTabId;
+};
+
 const App = () => {
   const [activeTab, setActiveTab] = useState('client-details'); // Default to Client Details
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isSessionReady, setIsSessionReady] = useState(false);
+  const [authMessage, setAuthMessage] = useState('');
+  const tabId = getTabId();
 
   const handleLogin = (u, t) => {
     const payload = decodeJwtPayload(t);
     const expiresAt = payload?.exp ? payload.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000;
 
+    setAuthMessage('');
     setUser(u);
     setToken(t);
     window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user: u, token: t, expiresAt }));
   };
 
-  const clearSession = useCallback(() => {
+  const clearSession = useCallback((message = '', options = {}) => {
+    const { preserveStoredSession = false } = options;
     setUser(null);
     setToken(null);
-    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    setAuthMessage(message);
+    if (!preserveStoredSession) {
+      window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
   }, []);
 
   const handleLogout = useCallback(async () => {
@@ -118,6 +137,85 @@ const App = () => {
   }, [clearSession]);
 
   React.useEffect(() => {
+    if (!user?.username || !token) return undefined;
+
+    const lockKey = `clientsync-active-tab:${user.username}`;
+    const readLock = () => {
+      try {
+        const raw = window.localStorage.getItem(lockKey);
+        return raw ? JSON.parse(raw) : null;
+      } catch (error) {
+        return null;
+      }
+    };
+
+    const claimLock = () => {
+      const existingLock = readLock();
+      const now = Date.now();
+      const lockIsActive =
+        existingLock &&
+        existingLock.tabId !== tabId &&
+        now - existingLock.heartbeatAt < TAB_STALE_MS;
+
+      if (lockIsActive) {
+        clearSession('This account is already open in another tab', { preserveStoredSession: true });
+        return false;
+      }
+
+      window.localStorage.setItem(
+        lockKey,
+        JSON.stringify({ tabId, heartbeatAt: now })
+      );
+      return true;
+    };
+
+    if (!claimLock()) return undefined;
+
+    const heartbeatId = window.setInterval(() => {
+      const currentLock = readLock();
+      if (currentLock?.tabId && currentLock.tabId !== tabId) {
+        clearSession('This account is already open in another tab', { preserveStoredSession: true });
+        return;
+      }
+
+      window.localStorage.setItem(
+        lockKey,
+        JSON.stringify({ tabId, heartbeatAt: Date.now() })
+      );
+    }, TAB_HEARTBEAT_MS);
+
+    const handleStorage = (event) => {
+      if (event.key !== lockKey || !event.newValue) return;
+
+      try {
+        const nextLock = JSON.parse(event.newValue);
+        if (nextLock.tabId !== tabId) {
+          clearSession('This account is already open in another tab', { preserveStoredSession: true });
+        }
+      } catch (error) {
+        // Ignore malformed storage updates.
+      }
+    };
+
+    const releaseLock = () => {
+      const currentLock = readLock();
+      if (currentLock?.tabId === tabId) {
+        window.localStorage.removeItem(lockKey);
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('beforeunload', releaseLock);
+
+    return () => {
+      window.clearInterval(heartbeatId);
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('beforeunload', releaseLock);
+      releaseLock();
+    };
+  }, [clearSession, tabId, token, user?.username]);
+
+  React.useEffect(() => {
     if (!token) return undefined;
 
     const payload = decodeJwtPayload(token);
@@ -139,7 +237,7 @@ const App = () => {
 
   if (!isSessionReady) return <div className="loader">Restoring session...</div>;
 
-  if (!user) return <Auth onLogin={handleLogin} />;
+  if (!user) return <Auth onLogin={handleLogin} initialError={authMessage} />;
 
   return (
     <div className="app-wrapper">
