@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import postgres from 'postgres';
 import serverless from 'serverless-http';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { neon } from '@netlify/neon';
 
 dotenv.config();
 
@@ -14,73 +14,72 @@ app.use(express.json());
 
 const router = express.Router();
 
-// Neon Postgres Connection (Standard connection string)
-const sql = postgres(process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL, { ssl: 'require' });
+// Netlify Neon Zero-Config SQL Driver
+const sql = neon();
 
 // Function: Initialize Neon Table (Self-Healing)
 const initDB = async () => {
-    await sql`
-      CREATE TABLE IF NOT EXISTS account_plans (
-        id TEXT PRIMARY KEY,
-        company_name TEXT,
-        contact_person TEXT,
-        email TEXT,
-        phone TEXT,
-        mobile_2 TEXT,
-        whatsapp TEXT,
-        industry TEXT,
-        review TEXT,
-        expectations TEXT,
-        goals TEXT,
-        xr_focus TEXT,
-        landscape TEXT,
-        drivers TEXT,
-        can_sell_extra TEXT,
-        opportunities TEXT,
-        strategy TEXT,
-        stakeholders TEXT,
-        plan TEXT,
-        actions TEXT,
-        risk_mitigation TEXT,
-        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
-    await sql`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT NOT NULL DEFAULT 'employee'
-      );
-      CREATE TABLE IF NOT EXISTS articles (
-        id SERIAL PRIMARY KEY,
-        topic TEXT,
-        source TEXT,
-        title TEXT,
-        snippet TEXT,
-        link TEXT,
-        date TEXT,
-        page TEXT,
-        sentiment TEXT,
-        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
-
-    // Default admin creation
     try {
-      const adminUser = await sql`SELECT * FROM users WHERE username = 'admin'`;
-      if (adminUser.length === 0) {
-        const pHash = await bcrypt.hash('admin', 10);
-        await sql`INSERT INTO users (username, password, role) VALUES ('admin', ${pHash}, 'admin')`;
-      }
+        // Splitting queries for maximum compatibility with serverless drivers
+        await sql`CREATE TABLE IF NOT EXISTS account_plans (
+            id TEXT PRIMARY KEY,
+            company_name TEXT,
+            contact_person TEXT,
+            email TEXT,
+            phone TEXT,
+            mobile_2 TEXT,
+            whatsapp TEXT,
+            industry TEXT,
+            review TEXT,
+            expectations TEXT,
+            goals TEXT,
+            xr_focus TEXT,
+            landscape TEXT,
+            drivers TEXT,
+            can_sell_extra TEXT,
+            opportunities TEXT,
+            strategy TEXT,
+            stakeholders TEXT,
+            plan TEXT,
+            actions TEXT,
+            risk_mitigation TEXT,
+            last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'employee'
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS articles (
+            id SERIAL PRIMARY KEY,
+            topic TEXT,
+            source TEXT,
+            title TEXT,
+            snippet TEXT,
+            link TEXT,
+            date TEXT,
+            page TEXT,
+            sentiment TEXT,
+            last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // Default admin creation
+        const adminUser = await sql`SELECT * FROM users WHERE username = 'admin'`;
+        if (adminUser.length === 0) {
+            const pHash = await bcrypt.hash('admin', 10);
+            await sql`INSERT INTO users (username, password, role) VALUES ('admin', ${pHash}, 'admin')`;
+        }
     } catch (e) {
-      console.error("DB Init Error:", e);
+        console.error("DB Init Error:", e);
+        throw e;
     }
 };
 
 // --- API Routes ---
 
-// 1. Save or Update Record
 router.post('/save-plan', async (req, res) => {
     try {
         await initDB();
@@ -123,15 +122,15 @@ router.post('/save-plan', async (req, res) => {
             RETURNING *
         `;
 
+        if (!result.length) throw new Error('Query failed to return result');
         const responseData = { ...result[0], _id: result[0].id };
         res.json({ data: responseData });
     } catch (error) {
         console.error('SQL Save Error:', error);
-        res.status(500).json({ status: 'fail' });
+        res.status(500).json({ error: 'Save failed: ' + error.message });
     }
 });
 
-// 2. Get All Records
 router.get('/plans', async (req, res) => {
     try {
         await initDB();
@@ -146,22 +145,20 @@ router.get('/plans', async (req, res) => {
         res.json(records);
     } catch (error) {
         console.error('SQL Read Error:', error);
-        res.status(500).json({ status: 'error' });
+        res.status(500).json({ error: 'Fetch failed: ' + error.message });
     }
 });
 
-// 3. Delete Record
 router.delete('/plan/:id', async (req, res) => {
     try {
         await initDB();
         await sql`DELETE FROM account_plans WHERE id = ${req.params.id}`;
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ status: 'error' });
+        res.status(500).json({ error: 'Delete failed: ' + error.message });
     }
 });
 
-// 4. Get Intelligence Articles (Signals)
 router.get('/articles', async (req, res) => {
     try {
         await initDB();
@@ -173,11 +170,10 @@ router.get('/articles', async (req, res) => {
         res.json(records);
     } catch (error) {
         console.error('SQL Articles Error:', error);
-        res.status(500).json({ status: 'error' });
+        res.status(500).json({ error: 'Intel fetch failed: ' + error.message });
     }
 });
 
-// 4. Signup
 router.post('/signup', async (req, res) => {
     try {
         await initDB();
@@ -196,23 +192,22 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-// 5. Login
 router.post('/login', async (req, res) => {
     try {
         await initDB();
         const { username, password } = req.body;
-        const user = await sql`SELECT * FROM users WHERE username = ${username}`;
+        const users = await sql`SELECT * FROM users WHERE username = ${username}`;
         
-                if (user.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+                if (users.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
         
-        const valid = await bcrypt.compare(password, user[0].password);
+        const valid = await bcrypt.compare(password, users[0].password);
         if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
         
-        const token = jwt.sign({ id: user[0].id, role: user[0].role }, process.env.JWT_SECRET || 'sync-secret', { expiresIn: '1d' });
-        res.json({ success: true, user: { username: user[0].username, role: user[0].role }, token });
+        const token = jwt.sign({ id: users[0].id, role: users[0].role }, process.env.JWT_SECRET || 'sync-secret', { expiresIn: '1d' });
+        res.json({ success: true, user: { username: users[0].username, role: users[0].role }, token });
     } catch (error) {
         console.error('Login Error:', error);
-        res.status(500).json({ error: 'Server error: ' + (error.message || 'Unknown error. Check NETLIFY_DATABASE_URL environment variable.') });
+        res.status(500).json({ error: 'Server error: ' + (error.message || 'Unknown database error.') });
     }
 });
 
