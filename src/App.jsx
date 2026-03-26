@@ -20,6 +20,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const TAB_ID_STORAGE_KEY = 'clientsync-tab-id';
 const TAB_HEARTBEAT_MS = 5000;
 const TAB_STALE_MS = 15000;
+const SESSION_PING_MS = 10000;
 
 const decodeJwtPayload = (token) => {
   try {
@@ -234,6 +235,31 @@ const App = () => {
 
     return () => window.clearTimeout(timeoutId);
   }, [clearSession, token]);
+
+  React.useEffect(() => {
+    if (!token || !user) return undefined;
+
+    const pingSession = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/session/ping`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.status === 401) {
+          clearSession();
+        }
+      } catch (error) {
+        // Ignore transient network issues; auth timeout is handled separately.
+      }
+    };
+
+    pingSession();
+    const intervalId = window.setInterval(pingSession, SESSION_PING_MS);
+    return () => window.clearInterval(intervalId);
+  }, [clearSession, token, user]);
 
   if (!isSessionReady) return <div className="loader">Restoring session...</div>;
 

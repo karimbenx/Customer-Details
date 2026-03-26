@@ -18,6 +18,7 @@ const router = express.Router();
 // Netlify Neon Zero-Config SQL Driver
 const sql = neon();
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
+const SESSION_ACTIVITY_TIMEOUT_MS = 30 * 1000;
 
 const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization || '';
@@ -49,6 +50,12 @@ const authMiddleware = async (req, res, next) => {
         ) {
             return res.status(401).json({ error: 'Session expired or replaced by another login' });
         }
+
+        await sql`
+            UPDATE users
+            SET session_last_seen_at = CURRENT_TIMESTAMP
+            WHERE id = ${decoded.id} AND session_id = ${decoded.sid}
+        `;
 
         req.user = decoded;
         next();
@@ -100,10 +107,12 @@ const initDB = async () => {
             password TEXT NOT NULL,
             role TEXT NOT NULL DEFAULT 'employee',
             session_id TEXT,
-            session_expires_at TIMESTAMP
+            session_expires_at TIMESTAMP,
+            session_last_seen_at TIMESTAMP
         )`;
         await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS session_id TEXT`;
         await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS session_expires_at TIMESTAMP`;
+        await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS session_last_seen_at TIMESTAMP`;
 
         await sql`CREATE TABLE IF NOT EXISTS articles (
             id SERIAL PRIMARY KEY,
@@ -277,7 +286,15 @@ router.post('/login', async (req, res) => {
         if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
         const existingSessionExpiresAt = users[0].session_expires_at ? new Date(users[0].session_expires_at).getTime() : null;
-        if (users[0].session_id && existingSessionExpiresAt && existingSessionExpiresAt > Date.now()) {
+        const existingSessionLastSeenAt = users[0].session_last_seen_at ? new Date(users[0].session_last_seen_at).getTime() : null;
+        const hasActiveSession =
+            users[0].session_id &&
+            existingSessionExpiresAt &&
+            existingSessionExpiresAt > Date.now() &&
+            existingSessionLastSeenAt &&
+            Date.now() - existingSessionLastSeenAt < SESSION_ACTIVITY_TIMEOUT_MS;
+
+        if (hasActiveSession) {
             return res.status(409).json({ error: 'This account is already logged in on another device or browser' });
         }
 
@@ -285,7 +302,7 @@ router.post('/login', async (req, res) => {
         const sessionExpiresAt = new Date(Date.now() + SESSION_DURATION_MS);
         await sql`
             UPDATE users
-            SET session_id = ${sessionId}, session_expires_at = ${sessionExpiresAt}
+            SET session_id = ${sessionId}, session_expires_at = ${sessionExpiresAt}, session_last_seen_at = CURRENT_TIMESTAMP
             WHERE id = ${users[0].id}
         `;
         
@@ -306,13 +323,17 @@ router.post('/logout', authMiddleware, async (req, res) => {
         await initDB();
         await sql`
             UPDATE users
-            SET session_id = NULL, session_expires_at = NULL
+            SET session_id = NULL, session_expires_at = NULL, session_last_seen_at = NULL
             WHERE id = ${req.user.id} AND session_id = ${req.user.sid}
         `;
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Logout failed' });
     }
+});
+
+router.post('/session/ping', authMiddleware, async (req, res) => {
+    res.json({ success: true });
 });
 
 app.use('/.netlify/functions/api', router);
