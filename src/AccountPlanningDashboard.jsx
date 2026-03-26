@@ -61,42 +61,6 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const currentIndex = sections.findIndex(s => s.id === activeSectionId);
-
-  const goToNext = () => {
-    if (currentIndex < sections.length - 1) {
-      setActiveSectionId(sections[currentIndex + 1].id);
-    }
-  };
-
-  const goToPrev = () => {
-    if (currentIndex > 0) {
-      setActiveSectionId(sections[currentIndex - 1].id);
-    } else {
-      setActiveSectionId(null);
-    }
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/save-plan`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      if (response.ok) {
-        setShowToast(true);
-        fetchPlans();
-        setTimeout(() => setShowToast(false), 3000);
-      }
-    } catch (error) {
-      console.error('Save error:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const sections = [
     {
       id: 'customerDetails',
@@ -264,6 +228,43 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
       )
     }
   ];
+
+  const currentIndex = sections.findIndex(s => s.id === activeSectionId);
+
+  const goToNext = () => {
+    if (currentIndex < sections.length - 1) {
+      setActiveSectionId(sections[currentIndex + 1].id);
+    }
+  };
+
+  const goToPrev = () => {
+    if (currentIndex > 0) {
+      setActiveSectionId(sections[currentIndex - 1].id);
+    } else {
+      setActiveSectionId(null);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/save-plan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (response.ok) {
+        setShowToast(true);
+        fetchPlans();
+        setTimeout(() => setShowToast(false), 3000);
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
 
   if (loading) return <div className="loader">Initializing Strategic Dashboard...</div>;
 
