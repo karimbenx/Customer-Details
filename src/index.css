@@ -319,32 +319,10 @@ html, body {
   color: var(--accent);
 }
 
-@media (max-width: 768px) {
-  .main-container {
-    padding: 1rem;
-    height: auto !important;
-    min-height: 100vh;
-  }
-  .header-version {
-    display: none !important;
-  }
-  header {
-    flex-wrap: wrap;
-    height: auto !important;
-    padding: 1rem !important;
-    gap: 1rem;
-  }
-  nav {
-    width: 100%;
-    height: 50px !important;
-    overflow-x: auto;
-  }
-  .pro-table th, .pro-table td {
-    padding: 1rem 0.5rem;
-    font-size: 0.8rem;
-  }
-}
 
+/* ===================== */
+/* ACTION BUTTONS        */
+/* ===================== */
 .action-btn {
   width: 36px;
   height: 36px;
@@ -357,21 +335,178 @@ html, body {
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
-.action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+.action-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.action-btn.edit:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.action-btn.delete:hover { border-color: var(--danger); color: var(--danger); background: rgba(239,68,68,0.1); }
+
+/* ===================== */
+/* SAVE BUTTON           */
+/* ===================== */
+.save-button {
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.action-btn.edit:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-glow);
+/* ===================== */
+/* LOADER                */
+/* ===================== */
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-weight: 700;
+  color: var(--text-muted);
 }
 
-.action-btn.delete:hover {
-  border-color: var(--danger);
-  color: var(--danger);
-  background: rgba(239, 68, 68, 0.1);
+/* ===================== */
+/* TOAST                 */
+/* ===================== */
+.toast-success {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--success);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+/* ===================== */
+/* RESPONSIVE BASE       */
+/* ===================== */
+
+/* Large Desktop */
+@media (min-width: 1280px) {
+  .main-container { max-width: 1400px; padding: 2.5rem; }
+}
+
+/* Tablet — 768–1023px */
+@media (max-width: 1023px) {
+  .main-container { padding: 1.5rem; }
+
+  .glass-card { padding: 1.5rem; }
+
+  .pro-table th { padding: 0.75rem 1rem; font-size: 0.7rem; }
+  .pro-table td { padding: 0.85rem 1rem; font-size: 0.85rem; }
+}
+
+/* Mobile — ≤767px */
+@media (max-width: 767px) {
+  html, body { overflow: auto; }
+
+  .app-wrapper { height: auto; min-height: 100vh; }
+
+  /* Header */
+  header {
+    height: auto !important;
+    padding: 0.75rem 1rem !important;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  header > div:first-child {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  nav {
+    width: 100%;
+    height: 44px !important;
+    overflow-x: auto;
+    display: flex !important;
+    gap: 0;
+    border-top: 1px solid var(--border-light);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  nav::-webkit-scrollbar { display: none; }
+
+  nav button {
+    padding: 0 1rem !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap;
+    height: 44px !important;
+  }
+
+  .header-version { display: none !important; }
+
+  /* Main content */
+  .main-content { overflow-y: auto; }
+
+  .main-container {
+    padding: 1rem;
+    height: auto !important;
+    min-height: unset;
+  }
+
+  .glass-card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  /* Forms: stack 2-column grids to 1 column on mobile */
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  /* Table: make scrollable */
+  .pro-table { min-width: 600px; }
+
+  .pro-table th { padding: 0.6rem 0.75rem; font-size: 0.65rem; }
+  .pro-table td { padding: 0.75rem; font-size: 0.8rem; }
+
+  /* Accordion section buttons */
+  .accordion-section { border-radius: 0.75rem; }
+
+  /* Dashboard section buttons: 2-col on mobile when collapsed */
+  div[style*="minmax(280px"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Bottom nav / save button */
+  .save-button {
+    padding: 0.9rem 1.5rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Auth card */
+  .glass-card[style*="maxWidth: '400px'"] {
+    padding: 1.5rem !important;
+  }
+}
+
+/* Small phones — ≤480px */
+@media (max-width: 480px) {
+  .main-container { padding: 0.75rem; }
+
+  .glass-card { padding: 1rem; border-radius: 0.75rem; }
+
+  h1 { font-size: 1.5rem !important; }
+
+  .pro-table { min-width: 500px; }
+
+  div[style*="minmax(280px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .toast-success {
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+    text-align: center;
+    white-space: normal;
+  }
 }
