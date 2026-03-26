@@ -681,73 +681,84 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ 
+          <div style={{
             display: 'flex',
             flexWrap: 'wrap',
-            justifyContent: activeSectionId ? 'center' : 'flex-start',
-            gap: activeSectionId ? '0.65rem' : '0.85rem',
-            marginBottom: 'clamp(1rem, 2vh, 1.5rem)',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: '0.85rem',
+            marginBottom: 'clamp(0.8rem, 1.8vh, 1.25rem)',
             transition: 'all 0.3s ease'
           }}>
-            {sections.map(s => (
-              <button
-                key={s.id}
-                onClick={() => setActiveSectionId(activeSectionId === s.id ? null : s.id)}
-                className={`accordion-section ${activeSectionId === s.id ? 'active' : ''}`}
-                style={{
-                  padding: activeSectionId ? 'clamp(0.85rem, 1.4vh, 1rem) clamp(0.9rem, 1.2vw, 1rem)' : 'clamp(1rem, 1.8vh, 1.25rem) clamp(1.05rem, 1.4vw, 1.35rem)',
-                  display: 'flex',
-                  flexDirection: activeSectionId ? 'row' : 'column',
-                  alignItems: activeSectionId ? 'center' : 'flex-start',
-                  justifyContent: 'center',
-                  gap: activeSectionId ? '0.6rem' : '0.85rem',
-                  background: activeSectionId === s.id ? 'var(--accent)' : '#fff',
-                  border: activeSectionId === s.id ? 'none' : '1px solid var(--border-light)',
-                  color: activeSectionId === s.id ? '#fff' : 'inherit',
-                  cursor: 'pointer',
-                  borderRadius: '12px',
-                  minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
-                  width: activeSectionId ? 'clamp(150px, 17vw, 180px)' : 'clamp(210px, 18vw, 240px)',
-                  maxWidth: '100%'
-                }}
-              >
-                <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 16 : 22 })}</div>
-                <div style={{ overflow: 'hidden' }}>
-                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.title}</h3>
-                  {!activeSectionId && <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.7 }}>{s.subtitle}</p>}
-                </div>
-              </button>
-            ))}
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: activeSectionId ? 'center' : 'flex-start',
+              gap: activeSectionId ? '0.65rem' : '0.85rem',
+              flex: '1 1 0',
+              minWidth: 0,
+              maxWidth: user?.role === 'admin' ? 'calc(100% - clamp(200px, 18vw, 240px) - 1rem)' : '100%'
+            }}>
+              {sections.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveSectionId(activeSectionId === s.id ? null : s.id)}
+                  className={`accordion-section ${activeSectionId === s.id ? 'active' : ''}`}
+                  style={{
+                    padding: activeSectionId ? 'clamp(0.85rem, 1.4vh, 1rem) clamp(0.9rem, 1.2vw, 1rem)' : 'clamp(1rem, 1.8vh, 1.25rem) clamp(1.05rem, 1.4vw, 1.35rem)',
+                    display: 'flex',
+                    flexDirection: activeSectionId ? 'row' : 'column',
+                    alignItems: activeSectionId ? 'center' : 'flex-start',
+                    justifyContent: 'center',
+                    gap: activeSectionId ? '0.6rem' : '0.85rem',
+                    background: activeSectionId === s.id ? 'var(--accent)' : '#fff',
+                    border: activeSectionId === s.id ? 'none' : '1px solid var(--border-light)',
+                    color: activeSectionId === s.id ? '#fff' : 'inherit',
+                    cursor: 'pointer',
+                    borderRadius: '12px',
+                    minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
+                    width: activeSectionId ? 'clamp(150px, 17vw, 180px)' : 'clamp(210px, 18vw, 240px)',
+                    maxWidth: '100%'
+                  }}
+                >
+                  <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 16 : 22 })}</div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.title}</h3>
+                    {!activeSectionId && <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.7 }}>{s.subtitle}</p>}
+                  </div>
+                </button>
+              ))}
+            </div>
             {user?.role === 'admin' && (
               <button
                 onClick={() => setShowCustomizer(true)}
                 className="accordion-section"
                 style={{
-                  padding: activeSectionId ? 'clamp(0.85rem, 1.4vh, 1rem) clamp(0.9rem, 1.2vw, 1rem)' : 'clamp(1rem, 1.8vh, 1.25rem) clamp(1.05rem, 1.4vw, 1.35rem)',
+                  padding: activeSectionId ? 'clamp(0.85rem, 1.4vh, 1rem) clamp(1rem, 1.3vw, 1.15rem)' : 'clamp(1rem, 1.8vh, 1.15rem) clamp(1.15rem, 1.5vw, 1.4rem)',
                   display: 'flex',
-                  flexDirection: activeSectionId ? 'row' : 'column',
-                  alignItems: activeSectionId ? 'center' : 'flex-start',
+                  alignItems: 'center',
                   justifyContent: 'center',
-                  gap: activeSectionId ? '0.6rem' : '0.85rem',
+                  gap: '0.6rem',
                   background: '#fff',
                   border: '1px solid var(--border-light)',
                   color: 'var(--text-primary)',
                   cursor: 'pointer',
                   borderRadius: '12px',
                   minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
-                  width: activeSectionId ? 'clamp(150px, 17vw, 180px)' : 'clamp(210px, 18vw, 240px)',
+                  minWidth: activeSectionId ? 'clamp(170px, 16vw, 200px)' : 'clamp(190px, 15vw, 220px)',
+                  flex: '0 0 auto',
                   maxWidth: '100%',
-                  boxShadow: 'var(--shadow-sm)'
+                  boxShadow: 'var(--shadow-sm)',
+                  alignSelf: 'flex-start'
                 }}
               >
                 <div style={{ flexShrink: 0 }}>
-                  {React.cloneElement(<ClipboardCheck />, { size: activeSectionId ? 16 : 22 })}
+                  {React.cloneElement(<ClipboardCheck />, { size: activeSectionId ? 16 : 20 })}
                 </div>
                 <div style={{ overflow: 'hidden' }}>
-                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.92rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                     Customize Form
                   </h3>
-                  {!activeSectionId && <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.7 }}>Admin controls</p>}
                 </div>
               </button>
             )}
