@@ -9,7 +9,12 @@ import {
   PlusCircle,
   Save,
   HelpCircle,
-  Briefcase
+  Briefcase,
+  Edit,
+  Trash2,
+  Phone,
+  Mail,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -265,6 +270,71 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
     }
   };
 
+  const handleEdit = (record) => {
+    setFormData({
+      _id: record._id,
+      companyName: record.companyName || '',
+      contactPerson: record.contactPerson || '',
+      email: record.email || '',
+      phone: record.phone || '',
+      industry: record.industry || '',
+      review: record.review || '',
+      expectations: record.expectations || '',
+      goals: record.goals || '',
+      xrFocus: record.xrFocus || 'None',
+      landscape: record.landscape || '',
+      drivers: record.drivers || '',
+      canSellExtra: record.canSellExtra || 'Unsure',
+      opportunities: record.opportunities || '',
+      strategy: record.strategy || 'Grow',
+      stakeholders: record.stakeholders || '',
+      plan: record.plan || '',
+      actions: record.actions || '',
+      riskMitigation: record.riskMitigation || ''
+    });
+    // Switch to form view via custom event defined in App.jsx
+    window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
+    setActiveSectionId('customerDetails');
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this strategic record?')) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/plan/${id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        setPastRecords(prev => prev.filter(r => r._id !== id));
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+    }
+  };
+
+  const handleNewPlan = () => {
+    setFormData({
+      companyName: '',
+      contactPerson: '',
+      email: '',
+      phone: '',
+      industry: '',
+      review: '',
+      expectations: '',
+      goals: '',
+      xrFocus: 'None',
+      landscape: '',
+      drivers: '',
+      canSellExtra: 'Unsure',
+      opportunities: '',
+      strategy: 'Grow',
+      stakeholders: '',
+      plan: '',
+      actions: '',
+      riskMitigation: ''
+    });
+    window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
+    setActiveSectionId('customerDetails');
+  };
 
   if (loading) return <div className="loader">Initializing Strategic Dashboard...</div>;
 
@@ -280,17 +350,99 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
 
       {view === 'records' ? (
         <div className="glass-card animate-in">
-          <h1 style={{ marginBottom: '2rem' }}>Strategic Records</h1>
-          <table className="pro-table">
-            <thead>
-              <tr><th>Company</th><th>Industry</th><th>Strategy</th></tr>
-            </thead>
-            <tbody>
-              {pastRecords.map(r => (
-                <tr key={r._id}><td>{r.companyName}</td><td>{r.industry}</td><td>{r.strategy}</td></tr>
-              ))}
-            </tbody>
-          </table>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+            <h1 style={{ margin: 0 }}>Strategic Database</h1>
+            <button 
+              onClick={handleNewPlan}
+              style={{ 
+                padding: '0.8rem 1.5rem', 
+                background: 'var(--accent)', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: '10px', 
+                fontWeight: 700, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <PlusCircle size={18} />
+              Create New Plan
+            </button>
+          </div>
+          
+          <div style={{ overflowX: 'auto' }}>
+            <table className="pro-table">
+              <thead>
+                <tr>
+                  <th>Company & Industry</th>
+                  <th>Contact Person</th>
+                  <th>Contact Details</th>
+                  <th>Strategy</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pastRecords.length === 0 ? (
+                  <tr><td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>No strategic records found.</td></tr>
+                ) : (
+                  pastRecords.map(r => (
+                    <tr key={r._id}>
+                      <td>
+                        <div style={{ fontWeight: 800, color: 'var(--primary)' }}>{r.companyName}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{r.industry}</div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <User size={14} color="var(--accent)" />
+                          {r.contactPerson || 'N/A'}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
+                            <Mail size={12} color="var(--text-muted)" />
+                            {r.email || 'N/A'}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
+                            <Phone size={12} color="var(--text-muted)" />
+                            {r.phone || 'N/A'}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`badge ${r.strategy === 'Grow' ? 'badge-primary' : ''}`} style={{ 
+                          background: r.strategy === 'Grow' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                          color: r.strategy === 'Grow' ? 'var(--accent)' : 'var(--success)'
+                        }}>
+                          {r.strategy}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                          <button 
+                            onClick={() => handleEdit(r)}
+                            className="action-btn edit"
+                            title="Edit Plan"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(r._id)}
+                            className="action-btn delete"
+                            title="Delete Plan"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>

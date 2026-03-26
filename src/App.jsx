@@ -117,13 +117,9 @@ const App = () => {
             transition={{ duration: 0.2 }}
             style={{ width: '100%' }}
           >
-            {activeTab === 'client-details' && (
-              <AccountPlanningDashboard view="form" />
-            )}
-
-            {activeTab === 'records' && (
-              <AccountPlanningDashboard view="records" />
-            )}
+            <AccountPlanningDashboard 
+              view={activeTab === 'records' ? 'records' : 'form'} 
+            />
           </motion.div>
         </AnimatePresence>
       </main>
