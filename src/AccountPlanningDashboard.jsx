@@ -373,6 +373,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       if (response.ok) {
         window.sessionStorage.removeItem(EDIT_DRAFT_STORAGE_KEY);
         setShowToast(true);
+        setActiveSectionId('customerDetails');
         fetchPlans();
         setTimeout(() => setShowToast(false), 3000);
       } else {
@@ -524,13 +525,15 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   <th>Contact Person</th>
                   <th>Primary Contact</th>
                   <th>Extra Contacts</th>
+                  <th>Proposal</th>
+                  <th>Revised Proposal</th>
                   <th>Strategy</th>
                   {user?.role === 'admin' && <th style={{ textAlign: 'right' }}>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {pastRecords.length === 0 ? (
-                  <tr><td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>No strategic records found.</td></tr>
+                  <tr><td colSpan={user?.role === 'admin' ? 8 : 7} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>No strategic records found.</td></tr>
                 ) : (
                   pastRecords.map(r => (
                     <tr key={r._id}>
@@ -569,6 +572,12 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                         </div>
                       </td>
                       <td>
+                        <div style={{ fontWeight: 700 }}>{r.proposal || 'N/A'}</div>
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 700 }}>{r.revisedProposal || r.proposal || 'N/A'}</div>
+                      </td>
+                      <td>
                         <span className={`badge ${r.strategy === 'Grow' ? 'badge-primary' : ''}`} style={{ 
                           background: r.strategy === 'Grow' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(16, 185, 129, 0.1)',
                           color: r.strategy === 'Grow' ? 'var(--accent)' : 'var(--success)'
@@ -578,7 +587,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                       </td>
                       {user?.role === 'admin' && (
                         <td>
-                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                             <button 
                               onClick={() => handleEdit(r)}
                               className="action-btn edit"
@@ -586,24 +595,12 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                             >
                               <Edit size={16} />
                             </button>
-                            <button
-                              onClick={() => handleEdit(r)}
-                              style={{ padding: '0.55rem 0.9rem', borderRadius: '9px', border: '1px solid var(--border-light)', background: '#fff', fontWeight: 700, cursor: 'pointer', color: 'var(--accent)' }}
-                            >
-                              Edit
-                            </button>
                             <button 
                               onClick={() => handleDelete(r._id)}
                               className="action-btn delete"
                               title="Delete Plan"
                             >
                               <Trash2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(r._id)}
-                              style={{ padding: '0.55rem 0.9rem', borderRadius: '9px', border: '1px solid rgba(239,68,68,0.18)', background: 'rgba(239,68,68,0.06)', fontWeight: 700, cursor: 'pointer', color: 'var(--danger)' }}
-                            >
-                              Delete
                             </button>
                           </div>
                         </td>
