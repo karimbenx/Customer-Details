@@ -192,7 +192,7 @@ router.post('/signup', async (req, res) => {
         res.json({ success: true, user: result[0] });
     } catch (error) {
         console.error('Signup Error:', error);
-        res.status(500).json({ error: 'User already exists or database error' });
+        res.status(500).json({ error: 'User already exists or database error: ' + error.message });
     }
 });
 
@@ -211,7 +211,8 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign({ id: user[0].id, role: user[0].role }, process.env.JWT_SECRET || 'sync-secret', { expiresIn: '1d' });
         res.json({ success: true, user: { username: user[0].username, role: user[0].role }, token });
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        console.error('Login Error:', error);
+        res.status(500).json({ error: 'Server error: ' + (error.message || 'Unknown error. Check NETLIFY_DATABASE_URL environment variable.') });
     }
 });
 
