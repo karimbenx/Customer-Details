@@ -12,6 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const router = express.Router();
+
 // Neon Postgres Connection (Standard connection string)
 const sql = postgres(process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL, { ssl: 'require' });
 
@@ -79,7 +81,7 @@ const initDB = async () => {
 // --- API Routes ---
 
 // 1. Save or Update Record
-app.post('/save-plan', async (req, res) => {
+router.post('/save-plan', async (req, res) => {
     try {
         await initDB();
         const { _id, companyName, contactPerson, email, phone, mobile2, whatsapp, industry, review, expectations, goals, xrFocus, landscape, drivers, canSellExtra, opportunities, strategy, stakeholders, plan, actions, riskMitigation } = req.body;
@@ -130,7 +132,7 @@ app.post('/save-plan', async (req, res) => {
 });
 
 // 2. Get All Records
-app.get('/plans', async (req, res) => {
+router.get('/plans', async (req, res) => {
     try {
         await initDB();
         const records = await sql`
@@ -149,7 +151,7 @@ app.get('/plans', async (req, res) => {
 });
 
 // 3. Delete Record
-app.delete('/plan/:id', async (req, res) => {
+router.delete('/plan/:id', async (req, res) => {
     try {
         await initDB();
         await sql`DELETE FROM account_plans WHERE id = ${req.params.id}`;
@@ -160,7 +162,7 @@ app.delete('/plan/:id', async (req, res) => {
 });
 
 // 4. Get Intelligence Articles (Signals)
-app.get('/articles', async (req, res) => {
+router.get('/articles', async (req, res) => {
     try {
         await initDB();
         const records = await sql`
@@ -176,7 +178,7 @@ app.get('/articles', async (req, res) => {
 });
 
 // 4. Signup
-app.post('/signup', async (req, res) => {
+router.post('/signup', async (req, res) => {
     try {
         await initDB();
         const { username, password, role } = req.body;
@@ -195,7 +197,7 @@ app.post('/signup', async (req, res) => {
 });
 
 // 5. Login
-app.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     try {
         await initDB();
         const { username, password } = req.body;
@@ -212,5 +214,9 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+app.use('/.netlify/functions/api', router);
+app.use('/api', router);
+app.use('/', router);
 
 export const handler = serverless(app);
