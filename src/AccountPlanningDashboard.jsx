@@ -412,7 +412,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             <table className="pro-table">
               <thead>
                 <tr>
-                  <th>Company &amp; Industry</th>
+                  <th>Company / Industry</th>
                   <th>Contact Person</th>
                   <th>Primary Contact</th>
                   <th>Extra Contacts</th>
