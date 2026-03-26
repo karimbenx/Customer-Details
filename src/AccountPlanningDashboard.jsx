@@ -681,16 +681,6 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {user?.role === 'admin' && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.85rem' }}>
-              <button
-                onClick={() => setShowCustomizer(true)}
-                style={{ padding: '0.65rem 1rem', background: '#fff', border: '1px solid var(--border-light)', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', color: 'var(--text-primary)' }}
-              >
-                Customize Form
-              </button>
-            </div>
-          )}
           <div style={{ 
             display: 'flex',
             flexWrap: 'wrap',
@@ -728,6 +718,39 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 </div>
               </button>
             ))}
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => setShowCustomizer(true)}
+                className="accordion-section"
+                style={{
+                  padding: activeSectionId ? 'clamp(0.85rem, 1.4vh, 1rem) clamp(0.9rem, 1.2vw, 1rem)' : 'clamp(1rem, 1.8vh, 1.25rem) clamp(1.05rem, 1.4vw, 1.35rem)',
+                  display: 'flex',
+                  flexDirection: activeSectionId ? 'row' : 'column',
+                  alignItems: activeSectionId ? 'center' : 'flex-start',
+                  justifyContent: 'center',
+                  gap: activeSectionId ? '0.6rem' : '0.85rem',
+                  background: '#fff',
+                  border: '1px solid var(--border-light)',
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  borderRadius: '12px',
+                  minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
+                  width: activeSectionId ? 'clamp(150px, 17vw, 180px)' : 'clamp(210px, 18vw, 240px)',
+                  maxWidth: '100%',
+                  boxShadow: 'var(--shadow-sm)'
+                }}
+              >
+                <div style={{ flexShrink: 0 }}>
+                  {React.cloneElement(<ClipboardCheck />, { size: activeSectionId ? 16 : 22 })}
+                </div>
+                <div style={{ overflow: 'hidden' }}>
+                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                    Customize Form
+                  </h3>
+                  {!activeSectionId && <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.7 }}>Admin controls</p>}
+                </div>
+              </button>
+            )}
           </div>
 
           <div style={{ position: 'relative' }}>
