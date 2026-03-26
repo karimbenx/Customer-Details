@@ -542,9 +542,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: activeSectionId ? 'repeat(auto-fit, minmax(100px, 1fr))' : 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: activeSectionId ? '0.5rem' : '1.5rem',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: activeSectionId ? 'center' : 'flex-start',
+            gap: activeSectionId ? '0.75rem' : '1rem',
             marginBottom: '1.5rem',
             transition: 'all 0.3s ease'
           }}>
@@ -565,7 +566,9 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   color: activeSectionId === s.id ? '#fff' : 'inherit',
                   cursor: 'pointer',
                   borderRadius: '12px',
-                  minHeight: activeSectionId ? '82px' : '124px'
+                  minHeight: activeSectionId ? '82px' : '112px',
+                  width: activeSectionId ? '176px' : '268px',
+                  maxWidth: '100%'
                 }}
               >
                 <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 18 : 26 })}</div>
