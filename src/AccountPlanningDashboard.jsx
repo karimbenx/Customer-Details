@@ -560,7 +560,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             flexWrap: 'wrap',
             justifyContent: activeSectionId ? 'center' : 'flex-start',
             gap: activeSectionId ? '0.65rem' : '0.85rem',
-            marginBottom: '1.25rem',
+            marginBottom: 'clamp(1rem, 2vh, 1.5rem)',
             transition: 'all 0.3s ease'
           }}>
             {sections.map(s => (
@@ -569,7 +569,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 onClick={() => setActiveSectionId(activeSectionId === s.id ? null : s.id)}
                 className={`accordion-section ${activeSectionId === s.id ? 'active' : ''}`}
                 style={{
-                  padding: activeSectionId ? '0.85rem 1rem' : '1.2rem 1.35rem',
+                  padding: activeSectionId ? 'clamp(0.85rem, 1.4vh, 1rem) clamp(0.9rem, 1.2vw, 1rem)' : 'clamp(1rem, 1.8vh, 1.25rem) clamp(1.05rem, 1.4vw, 1.35rem)',
                   display: 'flex',
                   flexDirection: activeSectionId ? 'row' : 'column',
                   alignItems: activeSectionId ? 'center' : 'flex-start',
@@ -580,8 +580,8 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   color: activeSectionId === s.id ? '#fff' : 'inherit',
                   cursor: 'pointer',
                   borderRadius: '12px',
-                  minHeight: activeSectionId ? '70px' : '82px',
-                  width: activeSectionId ? '154px' : '220px',
+                  minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
+                  width: activeSectionId ? 'clamp(150px, 17vw, 180px)' : 'clamp(210px, 18vw, 240px)',
                   maxWidth: '100%'
                 }}
               >
@@ -602,18 +602,18 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
-                  className="glass-card"
-                  style={{ display: 'flex', flexDirection: 'column', padding: '2rem' }}
+                  className="glass-card dashboard-form-card"
+                  style={{ display: 'flex', flexDirection: 'column', padding: 'clamp(1.2rem, 2.4vh, 2rem)' }}
                 >
-                  <div style={{ overflowY: 'auto', paddingRight: '1rem', maxHeight: '56vh' }}>
+                  <div className="dashboard-form-scroll" style={{ overflowY: 'auto', paddingRight: '0.75rem' }}>
                     {sections.find(s => s.id === activeSectionId).content}
                   </div>
                   <div style={{ 
-                    marginTop: '1.5rem', 
+                    marginTop: 'clamp(1rem, 2vh, 1.5rem)', 
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
-                    paddingTop: '1.1rem',
+                    paddingTop: 'clamp(0.85rem, 1.6vh, 1.1rem)',
                     borderTop: '1px solid var(--border-light)'
                   }}>
                     <button 

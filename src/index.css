@@ -358,6 +358,14 @@ html, body {
   transition: all 0.2s ease;
 }
 
+.dashboard-form-card {
+  min-height: min(620px, calc(100vh - 260px));
+}
+
+.dashboard-form-scroll {
+  max-height: min(680px, 58vh);
+}
+
 /* ===================== */
 /* LOADER                */
 /* ===================== */
@@ -404,6 +412,26 @@ html, body {
 
   .pro-table th { padding: 0.75rem 1rem; font-size: 0.7rem; }
   .pro-table td { padding: 0.85rem 1rem; font-size: 0.85rem; }
+}
+
+@media (max-height: 900px) {
+  .dashboard-form-card {
+    min-height: calc(100vh - 235px);
+  }
+
+  .dashboard-form-scroll {
+    max-height: 54vh;
+  }
+}
+
+@media (max-height: 760px) {
+  .dashboard-form-card {
+    min-height: calc(100vh - 210px);
+  }
+
+  .dashboard-form-scroll {
+    max-height: 50vh;
+  }
 }
 
 /* Mobile — ≤767px */
@@ -459,6 +487,14 @@ html, body {
   .glass-card {
     padding: 1.25rem;
     border-radius: 1rem;
+  }
+
+  .dashboard-form-card {
+    min-height: auto;
+  }
+
+  .dashboard-form-scroll {
+    max-height: none;
   }
 
   /* Forms: stack 2-column grids to 1 column on mobile */
