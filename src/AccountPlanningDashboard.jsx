@@ -262,21 +262,28 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     }
   };
 
+  const [saveError, setSaveError] = useState('');
+
   const handleSave = async () => {
     setIsSaving(true);
+    setSaveError('');
     try {
       const response = await fetch(`${API_BASE_URL}/api/save-plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
+      const data = await response.json();
       if (response.ok) {
         setShowToast(true);
         fetchPlans();
         setTimeout(() => setShowToast(false), 3000);
+      } else {
+        setSaveError(data.error || 'Save failed. Check console.');
       }
     } catch (error) {
       console.error('Save error:', error);
+      setSaveError('Network error: ' + error.message);
     } finally {
       setIsSaving(false);
     }
@@ -359,7 +366,14 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       <AnimatePresence>
         {showToast && (
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="toast-success">
-            Strategy Synchronized
+            Strategy Synchronized ✓
+          </motion.div>
+        )}
+        {saveError && (
+          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            style={{ position: 'fixed', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', background: 'var(--danger)', color: '#fff', padding: '1rem 2rem', borderRadius: '12px', fontWeight: 700, zIndex: 9999, maxWidth: '500px', textAlign: 'center' }}
+          >
+            ⚠️ {saveError}
           </motion.div>
         )}
       </AnimatePresence>
