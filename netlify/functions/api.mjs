@@ -19,6 +19,80 @@ const router = express.Router();
 const sql = neon();
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 const SESSION_ACTIVITY_TIMEOUT_MS = 30 * 1000;
+const DEFAULT_FORM_CONFIG = [
+    {
+        id: 'customerDetails',
+        title: 'Customer Overview',
+        subtitle: 'Primary contact and profile',
+        fields: [
+            { key: 'companyName', label: 'Company Name', type: 'text', placeholder: 'Acme Corp', width: 'half' },
+            { key: 'industry', label: 'Industry', type: 'text', placeholder: 'e.g. Technology', width: 'half' },
+            { key: 'contactPerson', label: 'Contact Person', type: 'text', placeholder: 'Full name of contact', width: 'full' },
+            { key: 'email', label: 'Email Address', type: 'email', placeholder: 'email@company.com', width: 'half' },
+            { key: 'whatsapp', label: 'WhatsApp Number', type: 'text', placeholder: 'WhatsApp number', width: 'half' },
+            { key: 'phone', label: 'Phone (Primary)', type: 'text', placeholder: '+1 555-0123', width: 'half' },
+            { key: 'mobile2', label: 'Secondary Mobile', type: 'text', placeholder: '+1 555-4567', width: 'half' }
+        ]
+    },
+    {
+        id: 'accountPotential',
+        title: 'Account Potential',
+        subtitle: 'History and strategic goals',
+        fields: [
+            { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'full' },
+            { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'full' },
+            { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' }
+        ]
+    },
+    {
+        id: 'priorities',
+        title: 'Customer Priorities',
+        subtitle: 'Drivers and tech focus',
+        fields: [
+            { key: 'xrFocus', label: 'Primary XR Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI'] },
+            { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'full' },
+            { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'full' }
+        ]
+    },
+    {
+        id: 'opportunity',
+        title: 'Opportunities',
+        subtitle: 'Sales and strategy',
+        fields: [
+            { key: 'canSellExtra', label: 'Upsell Potential', type: 'select', width: 'full', options: ['Unsure', 'Definitely', 'Maybe', 'Unlikely'] },
+            { key: 'opportunities', label: 'Specific Opportunities', type: 'textarea', placeholder: 'Detail specific growth paths...', width: 'full' },
+            {
+                key: 'strategy',
+                label: 'Primary Strategy',
+                type: 'radio',
+                width: 'full',
+                options: ['Protect', 'Grow'],
+                descriptions: {
+                    Protect: 'Defend existing accounts and maintain satisfaction.',
+                    Grow: 'Expand footprint and increase account value.'
+                }
+            }
+        ]
+    },
+    {
+        id: 'relationship',
+        title: 'Relationships',
+        subtitle: 'Stakeholders and mapping',
+        fields: [
+            { key: 'stakeholders', label: 'Key Executives & Stakeholders', type: 'textarea', placeholder: 'List influential points of contact...', width: 'full' },
+            { key: 'plan', label: 'Advancement Plan', type: 'textarea', placeholder: 'How will we strengthen these ties?', width: 'full' }
+        ]
+    },
+    {
+        id: 'action',
+        title: 'Action Plan',
+        subtitle: 'Critical actions and risk',
+        fields: [
+            { key: 'actions', label: 'Critical Actions', type: 'textarea', placeholder: 'Immediate steps required...', width: 'full' },
+            { key: 'riskMitigation', label: 'Risk Mitigation', type: 'textarea', placeholder: 'Potential blockers and solutions...', width: 'full' }
+        ]
+    }
+];
 
 const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization || '';
@@ -126,6 +200,16 @@ const initDB = async () => {
             sentiment TEXT,
             last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
+        await sql`CREATE TABLE IF NOT EXISTS form_configs (
+            id TEXT PRIMARY KEY,
+            config JSONB NOT NULL,
+            last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+        await sql`
+            INSERT INTO form_configs (id, config, last_updated)
+            VALUES ('default', ${JSON.stringify(DEFAULT_FORM_CONFIG)}::jsonb, CURRENT_TIMESTAMP)
+            ON CONFLICT (id) DO NOTHING
+        `;
 
         // Default admin creation
         const adminUser = await sql`SELECT * FROM users WHERE username = 'admin'`;
@@ -334,6 +418,42 @@ router.post('/logout', authMiddleware, async (req, res) => {
 
 router.post('/session/ping', authMiddleware, async (req, res) => {
     res.json({ success: true });
+});
+
+router.get('/form-config', authMiddleware, async (req, res) => {
+    try {
+        await initDB();
+        const result = await sql`SELECT config FROM form_configs WHERE id = 'default'`;
+        res.json(result[0]?.config || DEFAULT_FORM_CONFIG);
+    } catch (error) {
+        res.status(500).json({ error: 'Unable to load form config' });
+    }
+});
+
+router.put('/form-config', authMiddleware, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        await initDB();
+        const nextConfig = Array.isArray(req.body) ? req.body : req.body?.config;
+        if (!Array.isArray(nextConfig)) {
+            return res.status(400).json({ error: 'Invalid form config payload' });
+        }
+
+        await sql`
+            INSERT INTO form_configs (id, config, last_updated)
+            VALUES ('default', ${JSON.stringify(nextConfig)}::jsonb, CURRENT_TIMESTAMP)
+            ON CONFLICT (id) DO UPDATE SET
+                config = EXCLUDED.config,
+                last_updated = CURRENT_TIMESTAMP
+        `;
+
+        res.json({ success: true, config: nextConfig });
+    } catch (error) {
+        res.status(500).json({ error: 'Unable to save form config' });
+    }
 });
 
 app.use('/.netlify/functions/api', router);

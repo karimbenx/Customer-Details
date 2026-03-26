@@ -8,7 +8,6 @@ import {
   ChevronRight,
   PlusCircle,
   Save,
-  HelpCircle,
   Briefcase,
   Edit,
   Trash2,
@@ -23,6 +22,79 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const EDIT_DRAFT_STORAGE_KEY = 'clientsync-edit-draft';
+const DEFAULT_FORM_CONFIG = [
+  {
+    id: 'customerDetails',
+    title: 'Customer Overview',
+    subtitle: 'Primary contact and profile',
+    fields: [
+      { key: 'companyName', label: 'Company Name', type: 'text', placeholder: 'Acme Corp', width: 'half' },
+      { key: 'industry', label: 'Industry', type: 'text', placeholder: 'e.g. Technology', width: 'half' },
+      { key: 'contactPerson', label: 'Contact Person', type: 'text', placeholder: 'Full name of contact', width: 'full' },
+      { key: 'email', label: 'Email Address', type: 'email', placeholder: 'email@company.com', width: 'half' },
+      { key: 'whatsapp', label: 'WhatsApp Number', type: 'text', placeholder: 'WhatsApp number', width: 'half' },
+      { key: 'phone', label: 'Phone (Primary)', type: 'text', placeholder: '+1 555-0123', width: 'half' },
+      { key: 'mobile2', label: 'Secondary Mobile', type: 'text', placeholder: '+1 555-4567', width: 'half' }
+    ]
+  },
+  {
+    id: 'accountPotential',
+    title: 'Account Potential',
+    subtitle: 'History and strategic goals',
+    fields: [
+      { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'full' },
+      { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'full' },
+      { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' }
+    ]
+  },
+  {
+    id: 'priorities',
+    title: 'Customer Priorities',
+    subtitle: 'Drivers and tech focus',
+    fields: [
+      { key: 'xrFocus', label: 'Primary XR Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI'] },
+      { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'full' },
+      { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'full' }
+    ]
+  },
+  {
+    id: 'opportunity',
+    title: 'Opportunities',
+    subtitle: 'Sales and strategy',
+    fields: [
+      { key: 'canSellExtra', label: 'Upsell Potential', type: 'select', width: 'full', options: ['Unsure', 'Definitely', 'Maybe', 'Unlikely'] },
+      { key: 'opportunities', label: 'Specific Opportunities', type: 'textarea', placeholder: 'Detail specific growth paths...', width: 'full' },
+      { key: 'strategy', label: 'Primary Strategy', type: 'radio', width: 'full', options: ['Protect', 'Grow'], descriptions: { Protect: 'Defend existing accounts and maintain satisfaction.', Grow: 'Expand footprint and increase account value.' } }
+    ]
+  },
+  {
+    id: 'relationship',
+    title: 'Relationships',
+    subtitle: 'Stakeholders and mapping',
+    fields: [
+      { key: 'stakeholders', label: 'Key Executives & Stakeholders', type: 'textarea', placeholder: 'List influential points of contact...', width: 'full' },
+      { key: 'plan', label: 'Advancement Plan', type: 'textarea', placeholder: 'How will we strengthen these ties?', width: 'full' }
+    ]
+  },
+  {
+    id: 'action',
+    title: 'Action Plan',
+    subtitle: 'Critical actions and risk',
+    fields: [
+      { key: 'actions', label: 'Critical Actions', type: 'textarea', placeholder: 'Immediate steps required...', width: 'full' },
+      { key: 'riskMitigation', label: 'Risk Mitigation', type: 'textarea', placeholder: 'Potential blockers and solutions...', width: 'full' }
+    ]
+  }
+];
+
+const sectionIcons = {
+  customerDetails: <Briefcase />,
+  accountPotential: <TrendingUp />,
+  priorities: <Target />,
+  opportunity: <Lightbulb />,
+  relationship: <Users />,
+  action: <ClipboardCheck />
+};
 
 const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const [formData, setFormData] = useState({
@@ -53,6 +125,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState(null);
+  const [formConfig, setFormConfig] = useState(DEFAULT_FORM_CONFIG);
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
+  const [configError, setConfigError] = useState('');
 
   const fetchPlans = async () => {
     try {
@@ -72,8 +148,28 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     }
   };
 
+  const fetchFormConfig = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/form-config`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.status === 401) {
+        window.dispatchEvent(new CustomEvent('forceLogout'));
+        return;
+      }
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setFormConfig(data);
+      }
+    } catch (error) {
+      console.error('Error fetching form config:', error);
+    }
+  };
+
   useEffect(() => {
-    fetchPlans().then(() => setLoading(false));
+    Promise.all([fetchPlans(), fetchFormConfig()]).finally(() => setLoading(false));
   }, [token]);
 
   useEffect(() => {
@@ -97,197 +193,114 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const sections = [
-    {
-      id: 'customerDetails',
-      title: 'Customer Overview',
-      subtitle: 'Primary contact and profile',
-      icon: <Briefcase />,
-      content: (
-        <div className="grid gap-6">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <div className="form-group">
-              <label>Company Name</label>
-              <input className="input-field" placeholder="Acme Corp" value={formData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label>Industry</label>
-              <input className="input-field" placeholder="e.g. Technology" value={formData.industry} onChange={(e) => handleInputChange('industry', e.target.value)} />
-            </div>
-          </div>
-          <div className="form-group">
-            <label>Contact Person</label>
-            <input className="input-field" placeholder="Full name of contact" value={formData.contactPerson} onChange={(e) => handleInputChange('contactPerson', e.target.value)} />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <div className="form-group">
-              <label>Email Address</label>
-              <input className="input-field" type="email" placeholder="email@company.com" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label>WhatsApp Number</label>
-              <input className="input-field" placeholder="WhatsApp number" value={formData.whatsapp} onChange={(e) => handleInputChange('whatsapp', e.target.value)} />
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <div className="form-group">
-              <label>Phone (Primary)</label>
-              <input className="input-field" placeholder="+1 555-0123" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label>Secondary Mobile</label>
-              <input className="input-field" placeholder="+1 555-4567" value={formData.mobile2} onChange={(e) => handleInputChange('mobile2', e.target.value)} />
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      id: 'accountPotential',
-      title: 'Account Potential',
-      subtitle: 'History and strategic goals',
-      icon: <TrendingUp />,
-      content: (
-        <div className="grid gap-6">
-          <div className="form-group">
-            <label>Review & History</label>
-            <textarea className="textarea-field" placeholder="Recent milestones and history..." value={formData.review} onChange={(e) => handleInputChange('review', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>Expectations</label>
-            <textarea className="textarea-field" placeholder="What does the customer expect?" value={formData.expectations} onChange={(e) => handleInputChange('expectations', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>Strategic Goals</label>
-            <textarea className="textarea-field" placeholder="Top 3 business goals" value={formData.goals} onChange={(e) => handleInputChange('goals', e.target.value)} />
-          </div>
-        </div>
-      )
-    },
-    {
-      id: 'priorities',
-      title: 'Customer Priorities',
-      subtitle: 'Drivers and tech focus',
-      icon: <Target />,
-      content: (
-        <div className="grid gap-6">
-          <div className="form-group">
-            <label>Primary XR Focus</label>
-            <select className="select-field" value={formData.xrFocus} onChange={(e) => handleInputChange('xrFocus', e.target.value)}>
-              <option value="None">Select Interest...</option>
-              <option value="AR">Augmented Reality (AR)</option>
-              <option value="VR">Virtual Reality (VR)</option>
-              <option value="MR">Mixed Reality (MR)</option>
-              <option value="AI">AI / Machine Learning</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Business Landscape</label>
-            <textarea className="textarea-field" placeholder="Current market challenges..." value={formData.landscape} onChange={(e) => handleInputChange('landscape', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>Key Business Drivers</label>
-            <textarea className="textarea-field" placeholder="What drives their decisions?" value={formData.drivers} onChange={(e) => handleInputChange('drivers', e.target.value)} />
-          </div>
-        </div>
-      )
-    },
-    {
-      id: 'opportunity',
-      title: 'Opportunities',
-      subtitle: 'Sales and strategy',
-      icon: <Lightbulb />,
-      content: (
-        <div className="grid gap-6">
-          <div className="form-group">
-            <label>Upsell Potential</label>
-            <select className="select-field" value={formData.canSellExtra} onChange={(e) => handleInputChange('canSellExtra', e.target.value)}>
-              <option value="Unsure">Select Potential...</option>
-              <option value="Definitely">Definitely (High Potential)</option>
-              <option value="Maybe">Maybe (Review Needed)</option>
-              <option value="Unlikely">Unlikely (Low Interest)</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Specific Opportunities</label>
-            <textarea className="textarea-field" placeholder="Detail specific growth paths..." value={formData.opportunities} onChange={(e) => handleInputChange('opportunities', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              Primary Strategy
-            </label>
-            <div style={{ display: 'flex', gap: '1.5rem', padding: '0.35rem 0 0.1rem', flexWrap: 'wrap' }}>
-              <div>
-                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                  <input type="radio" style={{ width: '18px', height: '18px' }} checked={formData.strategy === 'Protect'} onChange={() => handleInputChange('strategy', 'Protect')} /> 
-                  Protect
-                </label>
-              </div>
-              <div>
-                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                  <input type="radio" style={{ width: '18px', height: '18px' }} checked={formData.strategy === 'Grow'} onChange={() => handleInputChange('strategy', 'Grow')} /> 
-                  Grow
-                </label>
-              </div>
-            </div>
-            <div
-              style={{
-                marginTop: '0.75rem',
-                padding: '0.9rem 1rem',
-                borderRadius: '12px',
-                background: 'var(--bg-home)',
-                border: '1px solid var(--border-light)',
-                color: 'var(--text-secondary)',
-                fontSize: '0.86rem',
-                fontWeight: 600,
-                lineHeight: 1.5
-              }}
-            >
-              {formData.strategy === 'Protect'
-                ? 'Protect: Defend existing accounts and maintain satisfaction.'
-                : 'Grow: Expand footprint and increase account value.'}
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      id: 'relationship',
-      title: 'Relationships',
-      subtitle: 'Stakeholders and mapping',
-      icon: <Users />,
-      content: (
-        <div className="grid gap-6">
-          <div className="form-group">
-            <label>Key Executives & Stakeholders</label>
-            <textarea className="textarea-field" placeholder="List influential points of contact..." value={formData.stakeholders} onChange={(e) => handleInputChange('stakeholders', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>Advancement Plan</label>
-            <textarea className="textarea-field" placeholder="How will we strengthen these ties?" value={formData.plan} onChange={(e) => handleInputChange('plan', e.target.value)} />
-          </div>
-        </div>
-      )
-    },
-    {
-      id: 'action',
-      title: 'Action Plan',
-      subtitle: 'Critical actions and risk',
-      icon: <ClipboardCheck />,
-      content: (
-        <div className="grid gap-6">
-          <div className="form-group">
-            <label>Critical Actions</label>
-            <textarea className="textarea-field" placeholder="Immediate steps required..." value={formData.actions} onChange={(e) => handleInputChange('actions', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>Risk Mitigation</label>
-            <textarea className="textarea-field" placeholder="Potential blockers and solutions..." value={formData.riskMitigation} onChange={(e) => handleInputChange('riskMitigation', e.target.value)} />
-          </div>
-        </div>
-      )
+  const sections = formConfig.map((section) => ({
+    ...section,
+    icon: sectionIcons[section.id] || <Briefcase />
+  }));
+
+  const renderField = (field) => {
+    if (field.type === 'select') {
+      return (
+        <select className="select-field" value={formData[field.key] || ''} onChange={(e) => handleInputChange(field.key, e.target.value)}>
+          {(field.options || []).map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      );
     }
-  ];
+
+    if (field.type === 'radio') {
+      const selectedValue = formData[field.key] || field.options?.[0] || '';
+      return (
+        <>
+          <div style={{ display: 'flex', gap: '1.5rem', padding: '0.35rem 0 0.1rem', flexWrap: 'wrap' }}>
+            {(field.options || []).map((option) => (
+              <div key={option}>
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                  <input type="radio" style={{ width: '18px', height: '18px' }} checked={selectedValue === option} onChange={() => handleInputChange(field.key, option)} />
+                  {option}
+                </label>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: '0.75rem', padding: '0.9rem 1rem', borderRadius: '12px', background: 'var(--bg-home)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', fontSize: '0.86rem', fontWeight: 600, lineHeight: 1.5 }}>
+            {field.descriptions?.[selectedValue] || ''}
+          </div>
+        </>
+      );
+    }
+
+    if (field.type === 'textarea') {
+      return (
+        <textarea className="textarea-field" placeholder={field.placeholder || ''} value={formData[field.key] || ''} onChange={(e) => handleInputChange(field.key, e.target.value)} />
+      );
+    }
+
+    return (
+      <input className="input-field" type={field.type || 'text'} placeholder={field.placeholder || ''} value={formData[field.key] || ''} onChange={(e) => handleInputChange(field.key, e.target.value)} />
+    );
+  };
+
+  const renderSectionContent = (section) => (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '1.5rem' }}>
+      {section.fields.map((field) => (
+        <div key={field.key} className="form-group" style={{ gridColumn: field.width === 'half' ? 'span 1' : '1 / -1' }}>
+          <label>{field.label}</label>
+          {renderField(field)}
+        </div>
+      ))}
+    </div>
+  );
+
+  const updateSectionField = (sectionId, fieldKey, property, value) => {
+    setFormConfig((prev) => prev.map((section) => (
+      section.id !== sectionId
+        ? section
+        : {
+            ...section,
+            fields: section.fields.map((field) => (
+              field.key !== fieldKey
+                ? field
+                : { ...field, [property]: value }
+            ))
+          }
+    )));
+  };
+
+  const updateSectionMeta = (sectionId, property, value) => {
+    setFormConfig((prev) => prev.map((section) => (
+      section.id !== sectionId ? section : { ...section, [property]: value }
+    )));
+  };
+
+  const handleConfigSave = async () => {
+    setIsSavingConfig(true);
+    setConfigError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/form-config`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formConfig)
+      });
+      if (response.status === 401) {
+        window.dispatchEvent(new CustomEvent('forceLogout'));
+        return;
+      }
+      const data = await response.json();
+      if (!response.ok) {
+        setConfigError(data.error || 'Unable to save form configuration');
+        return;
+      }
+      setShowCustomizer(false);
+    } catch (error) {
+      setConfigError('Unable to save form configuration');
+    } finally {
+      setIsSavingConfig(false);
+    }
+  };
 
   const currentIndex = sections.findIndex(s => s.id === activeSectionId);
 
@@ -555,6 +568,16 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {user?.role === 'admin' && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.85rem' }}>
+              <button
+                onClick={() => setShowCustomizer(true)}
+                style={{ padding: '0.65rem 1rem', background: '#fff', border: '1px solid var(--border-light)', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', color: 'var(--text-primary)' }}
+              >
+                Customize Form
+              </button>
+            </div>
+          )}
           <div style={{ 
             display: 'flex',
             flexWrap: 'wrap',
@@ -606,7 +629,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   style={{ display: 'flex', flexDirection: 'column', padding: 'clamp(1.2rem, 2.4vh, 2rem)' }}
                 >
                   <div className="dashboard-form-scroll" style={{ overflowY: 'auto', paddingRight: '0.75rem' }}>
-                    {sections.find(s => s.id === activeSectionId).content}
+                    {renderSectionContent(sections.find(s => s.id === activeSectionId))}
                   </div>
                   <div style={{ 
                     marginTop: 'clamp(1rem, 2vh, 1.5rem)', 
@@ -686,6 +709,91 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           </div>
         </div>
       )}
+      <AnimatePresence>
+        {showCustomizer && user?.role === 'admin' && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.5)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="glass-card" style={{ width: 'min(980px, 100%)', maxHeight: '85vh', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <h2 style={{ margin: 0, fontSize: '1.3rem' }}>Customize Form</h2>
+                <button onClick={() => setShowCustomizer(false)} style={{ border: 'none', background: 'transparent', fontSize: '1.3rem', cursor: 'pointer' }}>x</button>
+              </div>
+              {configError && (
+                <div style={{ marginBottom: '1rem', padding: '0.8rem 1rem', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', color: 'var(--danger)', fontWeight: 700 }}>
+                  {configError}
+                </div>
+              )}
+              <div style={{ display: 'grid', gap: '1.25rem' }}>
+                {formConfig.map((section) => (
+                  <div key={section.id} style={{ border: '1px solid var(--border-light)', borderRadius: '14px', padding: '1rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Section Title</label>
+                        <input className="input-field" value={section.title} onChange={(e) => updateSectionMeta(section.id, 'title', e.target.value)} />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label>Section Subtitle</label>
+                        <input className="input-field" value={section.subtitle} onChange={(e) => updateSectionMeta(section.id, 'subtitle', e.target.value)} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gap: '0.85rem' }}>
+                      {section.fields.map((field) => (
+                        <div key={field.key} style={{ borderTop: '1px solid var(--border-light)', paddingTop: '0.85rem' }}>
+                          <div style={{ fontWeight: 800, marginBottom: '0.75rem' }}>{field.key}</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '0.75rem' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Label</label>
+                              <input className="input-field" value={field.label || ''} onChange={(e) => updateSectionField(section.id, field.key, 'label', e.target.value)} />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Placeholder</label>
+                              <input className="input-field" value={field.placeholder || ''} onChange={(e) => updateSectionField(section.id, field.key, 'placeholder', e.target.value)} />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Type</label>
+                              <select className="select-field" value={field.type} onChange={(e) => updateSectionField(section.id, field.key, 'type', e.target.value)}>
+                                <option value="text">Text</option>
+                                <option value="email">Email</option>
+                                <option value="textarea">Paragraph</option>
+                                <option value="select">Dropdown</option>
+                                <option value="radio">Radio</option>
+                              </select>
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Width</label>
+                              <select className="select-field" value={field.width || 'full'} onChange={(e) => updateSectionField(section.id, field.key, 'width', e.target.value)}>
+                                <option value="full">Full</option>
+                                <option value="half">Half</option>
+                              </select>
+                            </div>
+                          </div>
+                          {(field.type === 'select' || field.type === 'radio') && (
+                            <div className="form-group" style={{ marginBottom: 0, marginTop: '0.75rem' }}>
+                              <label>Options (comma separated)</label>
+                              <input
+                                className="input-field"
+                                value={(field.options || []).join(', ')}
+                                onChange={(e) => updateSectionField(section.id, field.key, 'options', e.target.value.split(',').map((item) => item.trim()).filter(Boolean))}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
+                <button onClick={() => setFormConfig(DEFAULT_FORM_CONFIG)} style={{ padding: '0.7rem 1rem', background: 'var(--bg-home)', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
+                  Reset Defaults
+                </button>
+                <button onClick={handleConfigSave} disabled={isSavingConfig} style={{ padding: '0.7rem 1rem', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 800, cursor: 'pointer' }}>
+                  {isSavingConfig ? 'Saving...' : 'Save Form Config'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
