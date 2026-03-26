@@ -55,8 +55,8 @@ const DEFAULT_FORM_CONFIG = [
     subtitle: 'Drivers and tech focus',
     fields: [
       { key: 'xrFocus', label: 'Primary Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI', 'Experience Centre'] },
-      { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'full' },
-      { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'full' }
+      { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'half' },
+      { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'half' }
     ]
   },
   {
@@ -74,8 +74,8 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Relationships',
     subtitle: 'Stakeholders and mapping',
     fields: [
-      { key: 'stakeholders', label: 'Key Executives & Stakeholders', type: 'textarea', placeholder: 'List influential points of contact...', width: 'full' },
-      { key: 'plan', label: 'Advancement Plan', type: 'textarea', placeholder: 'How will we strengthen these ties?', width: 'full' }
+      { key: 'stakeholders', label: 'Key Executives & Stakeholders', type: 'textarea', placeholder: 'List influential points of contact...', width: 'half' },
+      { key: 'plan', label: 'Advancement Plan', type: 'textarea', placeholder: 'How will we strengthen these ties?', width: 'half' }
     ]
   },
   {
@@ -83,8 +83,8 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Action Plan',
     subtitle: 'Critical actions and risk',
     fields: [
-      { key: 'actions', label: 'Critical Actions', type: 'textarea', placeholder: 'Immediate steps required...', width: 'full' },
-      { key: 'riskMitigation', label: 'Risk Mitigation', type: 'textarea', placeholder: 'Potential blockers and solutions...', width: 'full' }
+      { key: 'actions', label: 'Critical Actions', type: 'textarea', placeholder: 'Immediate steps required...', width: 'half' },
+      { key: 'riskMitigation', label: 'Risk Mitigation', type: 'textarea', placeholder: 'Potential blockers and solutions...', width: 'half' }
     ]
   }
 ];
@@ -107,7 +107,7 @@ const normalizeField = (field, defaultField) => {
       options: Array.from(new Set([...(merged.options || []), 'Experience Centre']))
     };
   }
-  if (merged.key === 'review' || merged.key === 'expectations') {
+  if (['review', 'expectations', 'landscape', 'drivers', 'stakeholders', 'plan', 'actions', 'riskMitigation'].includes(merged.key)) {
     return {
       ...merged,
       width: merged.width === 'full' ? 'half' : merged.width
