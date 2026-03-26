@@ -16,6 +16,7 @@ import IntelligenceDashboard from './IntelligenceDashboard';
 import Auth from './Auth';
 
 const AUTH_STORAGE_KEY = 'clientsync-auth-session';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 const decodeJwtPayload = (token) => {
   try {
@@ -45,11 +46,31 @@ const App = () => {
     window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user: u, token: t, expiresAt }));
   };
 
-  const handleLogout = useCallback(() => {
+  const clearSession = useCallback(() => {
     setUser(null);
     setToken(null);
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
   }, []);
+
+  const handleLogout = useCallback(async () => {
+    const savedSession = window.localStorage.getItem(AUTH_STORAGE_KEY);
+
+    try {
+      const parsedSession = savedSession ? JSON.parse(savedSession) : null;
+      if (parsedSession?.token) {
+        await fetch(`${API_BASE_URL}/api/logout`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${parsedSession.token}`
+          }
+        });
+      }
+    } catch (error) {
+      // Best-effort logout; always clear local state.
+    } finally {
+      clearSession();
+    }
+  }, [clearSession]);
 
   const navItems = [
     { id: 'client-details', label: 'Client Profiles', icon: <Users size={18} /> },
@@ -60,9 +81,16 @@ const App = () => {
     const handleTabChange = (e) => {
       if (e.detail) setActiveTab(e.detail);
     };
+    const handleForceLogout = () => {
+      clearSession();
+    };
     window.addEventListener('changeTab', handleTabChange);
-    return () => window.removeEventListener('changeTab', handleTabChange);
-  }, []);
+    window.addEventListener('forceLogout', handleForceLogout);
+    return () => {
+      window.removeEventListener('changeTab', handleTabChange);
+      window.removeEventListener('forceLogout', handleForceLogout);
+    };
+  }, [clearSession]);
 
   React.useEffect(() => {
     const savedSession = window.localStorage.getItem(AUTH_STORAGE_KEY);
@@ -75,19 +103,19 @@ const App = () => {
     try {
       const parsedSession = JSON.parse(savedSession);
       if (!parsedSession?.token || !parsedSession?.user || !parsedSession?.expiresAt) {
-        window.localStorage.removeItem(AUTH_STORAGE_KEY);
+        clearSession();
       } else if (Date.now() >= parsedSession.expiresAt) {
-        window.localStorage.removeItem(AUTH_STORAGE_KEY);
+        clearSession();
       } else {
         setUser(parsedSession.user);
         setToken(parsedSession.token);
       }
     } catch (error) {
-      window.localStorage.removeItem(AUTH_STORAGE_KEY);
+      clearSession();
     } finally {
       setIsSessionReady(true);
     }
-  }, []);
+  }, [clearSession]);
 
   React.useEffect(() => {
     if (!token) return undefined;
@@ -98,16 +126,16 @@ const App = () => {
 
     const timeoutMs = expiresAt - Date.now();
     if (timeoutMs <= 0) {
-      handleLogout();
+      clearSession();
       return undefined;
     }
 
     const timeoutId = window.setTimeout(() => {
-      handleLogout();
+      clearSession();
     }, timeoutMs);
 
     return () => window.clearTimeout(timeoutId);
-  }, [handleLogout, token]);
+  }, [clearSession, token]);
 
   if (!isSessionReady) return <div className="loader">Restoring session...</div>;
 

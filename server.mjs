@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'crypto';
 
 dotenv.config();
 
@@ -16,8 +17,9 @@ app.use(express.json());
 
 // Neon Postgres Connection (Standard connection string)
 const sql = postgres(process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL, { ssl: 'require' });
+const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
@@ -26,7 +28,29 @@ const authMiddleware = (req, res, next) => {
   }
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || 'sync-secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sync-secret');
+    const users = await sql`
+      SELECT id, session_id, session_expires_at
+      FROM users
+      WHERE id = ${decoded.id}
+    `;
+
+    if (users.length === 0) {
+      return res.status(401).json({ error: 'Session no longer exists' });
+    }
+
+    const activeSession = users[0];
+    if (
+      !decoded.sid ||
+      !activeSession.session_id ||
+      activeSession.session_id !== decoded.sid ||
+      !activeSession.session_expires_at ||
+      new Date(activeSession.session_expires_at).getTime() <= Date.now()
+    ) {
+      return res.status(401).json({ error: 'Session expired or replaced by another login' });
+    }
+
+    req.user = decoded;
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Invalid or expired token' });
@@ -70,7 +94,9 @@ const initDB = async () => {
       id SERIAL PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'employee'
+      role TEXT NOT NULL DEFAULT 'employee',
+      session_id TEXT,
+      session_expires_at TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS articles (
       id SERIAL PRIMARY KEY,
@@ -85,6 +111,8 @@ const initDB = async () => {
       last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS session_id TEXT`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS session_expires_at TIMESTAMP`;
 
   // Default admin creation outside SQL template
   try {
@@ -264,15 +292,42 @@ app.post('/api/login', async (req, res) => {
         
         const valid = await bcrypt.compare(password, user[0].password);
         if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+
+        const existingSessionExpiresAt = user[0].session_expires_at ? new Date(user[0].session_expires_at).getTime() : null;
+        if (user[0].session_id && existingSessionExpiresAt && existingSessionExpiresAt > Date.now()) {
+          return res.status(409).json({ error: 'This account is already logged in on another device or browser' });
+        }
+
+        const sessionId = randomUUID();
+        const sessionExpiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+        await sql`
+          UPDATE users
+          SET session_id = ${sessionId}, session_expires_at = ${sessionExpiresAt}
+          WHERE id = ${user[0].id}
+        `;
         
         const token = jwt.sign(
-          { id: user[0].id, username: user[0].username, role: user[0].role },
+          { id: user[0].id, username: user[0].username, role: user[0].role, sid: sessionId },
           process.env.JWT_SECRET || 'sync-secret',
           { expiresIn: '1d' }
         );
         res.json({ success: true, user: { username: user[0].username, role: user[0].role }, token });
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/logout', authMiddleware, async (req, res) => {
+    try {
+        await initDB();
+        await sql`
+          UPDATE users
+          SET session_id = NULL, session_expires_at = NULL
+          WHERE id = ${req.user.id} AND session_id = ${req.user.sid}
+        `;
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Logout failed' });
     }
 });
 

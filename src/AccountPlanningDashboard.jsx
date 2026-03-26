@@ -61,6 +61,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           Authorization: `Bearer ${token}`
         }
       });
+      if (res.status === 401) {
+        window.dispatchEvent(new CustomEvent('forceLogout'));
+        return;
+      }
       const data = await res.json();
       if (Array.isArray(data)) setPastRecords(data);
     } catch (err) {
@@ -301,6 +305,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
         },
         body: JSON.stringify(formData)
       });
+      if (response.status === 401) {
+        window.dispatchEvent(new CustomEvent('forceLogout'));
+        return;
+      }
       const data = await response.json();
       if (response.ok) {
         window.sessionStorage.removeItem(EDIT_DRAFT_STORAGE_KEY);
@@ -358,6 +366,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           Authorization: `Bearer ${token}`
         }
       });
+      if (response.status === 401) {
+        window.dispatchEvent(new CustomEvent('forceLogout'));
+        return;
+      }
       if (response.ok) {
         setPastRecords(prev => prev.filter(r => r._id !== id));
       }
