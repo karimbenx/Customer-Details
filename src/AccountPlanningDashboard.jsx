@@ -22,6 +22,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const EDIT_DRAFT_STORAGE_KEY = 'clientsync-edit-draft';
 
 const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const [formData, setFormData] = useState({
@@ -70,6 +71,23 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   useEffect(() => {
     fetchPlans().then(() => setLoading(false));
   }, [token]);
+
+  useEffect(() => {
+    if (view !== 'form') return;
+
+    const savedDraft = window.sessionStorage.getItem(EDIT_DRAFT_STORAGE_KEY);
+    if (!savedDraft) return;
+
+    try {
+      const parsedDraft = JSON.parse(savedDraft);
+      setFormData(prev => ({ ...prev, ...parsedDraft }));
+      setActiveSectionId('customerDetails');
+    } catch (error) {
+      console.error('Failed to restore edit draft:', error);
+    } finally {
+      window.sessionStorage.removeItem(EDIT_DRAFT_STORAGE_KEY);
+    }
+  }, [view]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -285,6 +303,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       });
       const data = await response.json();
       if (response.ok) {
+        window.sessionStorage.removeItem(EDIT_DRAFT_STORAGE_KEY);
         setShowToast(true);
         fetchPlans();
         setTimeout(() => setShowToast(false), 3000);
@@ -300,7 +319,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   };
 
   const handleEdit = (record) => {
-    setFormData({
+    const draft = {
       _id: record._id,
       companyName: record.companyName || '',
       contactPerson: record.contactPerson || '',
@@ -322,7 +341,9 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       plan: record.plan || '',
       actions: record.actions || '',
       riskMitigation: record.riskMitigation || ''
-    });
+    };
+    window.sessionStorage.setItem(EDIT_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    setFormData(draft);
     // Switch to form view via custom event defined in App.jsx
     window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
     setActiveSectionId('customerDetails');
@@ -346,6 +367,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   };
 
   const handleNewPlan = () => {
+    window.sessionStorage.removeItem(EDIT_DRAFT_STORAGE_KEY);
     setFormData({
       companyName: '',
       contactPerson: '',
