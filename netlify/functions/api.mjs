@@ -46,6 +46,10 @@ const initDB = async () => {
             last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // Migration: add columns if they don't exist (safe for existing tables)
+        await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS mobile_2 TEXT`;
+        await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS whatsapp TEXT`;
+
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
