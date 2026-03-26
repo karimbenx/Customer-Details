@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { 
   Users, 
   Zap, 
@@ -15,20 +15,41 @@ import AccountPlanningDashboard from './AccountPlanningDashboard';
 import IntelligenceDashboard from './IntelligenceDashboard';
 import Auth from './Auth';
 
+const AUTH_STORAGE_KEY = 'clientsync-auth-session';
+
+const decodeJwtPayload = (token) => {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    return JSON.parse(window.atob(padded));
+  } catch (error) {
+    return null;
+  }
+};
+
 const App = () => {
   const [activeTab, setActiveTab] = useState('client-details'); // Default to Client Details
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [isSessionReady, setIsSessionReady] = useState(false);
 
   const handleLogin = (u, t) => {
+    const payload = decodeJwtPayload(t);
+    const expiresAt = payload?.exp ? payload.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000;
+
     setUser(u);
     setToken(t);
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user: u, token: t, expiresAt }));
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setUser(null);
     setToken(null);
-  };
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  }, []);
 
   const navItems = [
     { id: 'client-details', label: 'Client Profiles', icon: <Users size={18} /> },
@@ -42,6 +63,53 @@ const App = () => {
     window.addEventListener('changeTab', handleTabChange);
     return () => window.removeEventListener('changeTab', handleTabChange);
   }, []);
+
+  React.useEffect(() => {
+    const savedSession = window.localStorage.getItem(AUTH_STORAGE_KEY);
+
+    if (!savedSession) {
+      setIsSessionReady(true);
+      return;
+    }
+
+    try {
+      const parsedSession = JSON.parse(savedSession);
+      if (!parsedSession?.token || !parsedSession?.user || !parsedSession?.expiresAt) {
+        window.localStorage.removeItem(AUTH_STORAGE_KEY);
+      } else if (Date.now() >= parsedSession.expiresAt) {
+        window.localStorage.removeItem(AUTH_STORAGE_KEY);
+      } else {
+        setUser(parsedSession.user);
+        setToken(parsedSession.token);
+      }
+    } catch (error) {
+      window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    } finally {
+      setIsSessionReady(true);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (!token) return undefined;
+
+    const payload = decodeJwtPayload(token);
+    const expiresAt = payload?.exp ? payload.exp * 1000 : null;
+    if (!expiresAt) return undefined;
+
+    const timeoutMs = expiresAt - Date.now();
+    if (timeoutMs <= 0) {
+      handleLogout();
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      handleLogout();
+    }, timeoutMs);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [handleLogout, token]);
+
+  if (!isSessionReady) return <div className="loader">Restoring session...</div>;
 
   if (!user) return <Auth onLogin={handleLogin} />;
 
