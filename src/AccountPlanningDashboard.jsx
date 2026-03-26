@@ -697,7 +697,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
               gap: activeSectionId ? '0.65rem' : '0.85rem',
               flex: '1 1 0',
               minWidth: 0,
-              maxWidth: user?.role === 'admin' ? 'calc(100% - clamp(200px, 18vw, 240px) - 1rem)' : '100%'
+              maxWidth: user?.role === 'admin' ? 'calc(100% - clamp(180px, 15vw, 210px) - 0.85rem)' : '100%'
             }}>
               {sections.map(s => (
                 <button
@@ -717,7 +717,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                     cursor: 'pointer',
                     borderRadius: '12px',
                     minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
-                    width: activeSectionId ? 'clamp(150px, 17vw, 180px)' : 'clamp(210px, 18vw, 240px)',
+                    width: activeSectionId ? 'clamp(138px, 14vw, 162px)' : 'clamp(210px, 18vw, 240px)',
                     maxWidth: '100%'
                   }}
                 >
@@ -745,7 +745,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   cursor: 'pointer',
                   borderRadius: '12px',
                   minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
-                  minWidth: activeSectionId ? 'clamp(170px, 16vw, 200px)' : 'clamp(190px, 15vw, 220px)',
+                  minWidth: activeSectionId ? 'clamp(160px, 14vw, 185px)' : 'clamp(190px, 15vw, 220px)',
                   flex: '0 0 auto',
                   maxWidth: '100%',
                   boxShadow: 'var(--shadow-sm)',
