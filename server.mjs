@@ -44,6 +44,8 @@ const initDB = async () => {
       risk_mitigation TEXT,
       last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+  `;
+  await sql`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
@@ -51,6 +53,17 @@ const initDB = async () => {
       role TEXT NOT NULL DEFAULT 'employee'
     );
   `;
+
+  // Default admin creation outside SQL template
+  try {
+    const adminUser = await sql`SELECT * FROM users WHERE username = 'admin'`;
+    if (adminUser.length === 0) {
+      const pHash = await bcrypt.hash('admin', 10);
+      await sql`INSERT INTO users (username, password, role) VALUES ('admin', ${pHash}, 'admin')`;
+    }
+  } catch (e) {
+    console.error("DB Init Error:", e);
+  }
 };
 
 // --- API Routes (Simplified SQL Edition) ---

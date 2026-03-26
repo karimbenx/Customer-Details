@@ -125,21 +125,29 @@ const Auth = ({ onLogin }) => {
             />
           </div>
 
-          {!isLogin && (
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <ShieldCheck size={14} /> Assigned Role
-              </label>
-              <select 
-                className="select-field"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="employee">Employee</option>
-                <option value="admin">Administrator</option>
-              </select>
-            </div>
-          )}
+          <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ShieldCheck size={14} /> {isLogin ? 'Login As' : 'Assigned Role'}
+            </label>
+            <select 
+              className="select-field"
+              value={role}
+              onChange={(e) => {
+                const newRole = e.target.value;
+                setRole(newRole);
+                if (isLogin && newRole === 'admin') {
+                  setUsername('admin');
+                  setPassword('admin');
+                } else if (isLogin && newRole === 'employee') {
+                  setUsername('');
+                  setPassword('');
+                }
+              }}
+            >
+              <option value="employee">Employee / User</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
 
           <button 
             type="submit" 
