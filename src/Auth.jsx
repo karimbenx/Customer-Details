@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, LogIn, UserPlus, Lock, User, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Zap, LogIn, UserPlus } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
@@ -20,7 +20,7 @@ const Auth = ({ onLogin, initialError = '' }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     const endpoint = isLogin ? '/api/login' : '/api/signup';
     const payload = isLogin ? { username, password } : { username, password, role };
 
@@ -31,7 +31,7 @@ const Auth = ({ onLogin, initialError = '' }) => {
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-      
+
       if (data.success) {
         if (isLogin) {
           onLogin(data.user, data.token);
@@ -58,53 +58,58 @@ const Auth = ({ onLogin, initialError = '' }) => {
       setUsername('');
       setPassword('');
     }
-  }
+  };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      background: 'var(--bg-home)',
-      padding: '1.5rem'
-    }}>
-      <motion.div 
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--bg-home)',
+        padding: '1.5rem'
+      }}
+    >
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="glass-card" 
-        style={{ width: '100%', maxWidth: '400px', padding: '2.5rem' }}
+        className="glass-card"
+        style={{ width: '100%', maxWidth: '520px', padding: '1.9rem 2rem' }}
       >
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ 
-            width: '40px', 
-            height: '40px', 
-            background: 'var(--accent)', 
-            borderRadius: '10px', 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            marginBottom: '0.75rem',
-            boxShadow: '0 8px 16px var(--accent-glow)'
-          }}>
-            <Zap size={22} color="#fff" fill="#fff" />
+        <div style={{ textAlign: 'center', marginBottom: '1.4rem' }}>
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              background: 'var(--accent)',
+              borderRadius: '10px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '0.6rem',
+              boxShadow: '0 8px 16px var(--accent-glow)'
+            }}
+          >
+            <Zap size={20} color="#fff" fill="#fff" />
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900 }}>ClientSync</h1>
+          <h1 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 900 }}>ClientSync</h1>
         </div>
 
-        {/* Tab Control */}
-        <div style={{ 
-          display: 'flex', 
-          background: 'var(--bg-home)', 
-          padding: '0.4rem', 
-          borderRadius: '12px', 
-          marginBottom: '2rem' 
-        }}>
-          <button 
+        <div
+          style={{
+            display: 'flex',
+            background: 'var(--bg-home)',
+            padding: '0.35rem',
+            borderRadius: '12px',
+            marginBottom: '1.4rem'
+          }}
+        >
+          <button
             onClick={() => setIsLogin(true)}
             style={{
               flex: 1,
-              padding: '0.6rem',
+              padding: '0.55rem',
               border: 'none',
               borderRadius: '8px',
               background: isLogin ? '#fff' : 'transparent',
@@ -118,11 +123,11 @@ const Auth = ({ onLogin, initialError = '' }) => {
           >
             Login
           </button>
-          <button 
+          <button
             onClick={() => setIsLogin(false)}
             style={{
               flex: 1,
-              padding: '0.6rem',
+              padding: '0.55rem',
               border: 'none',
               borderRadius: '8px',
               background: !isLogin ? '#fff' : 'transparent',
@@ -139,72 +144,83 @@ const Auth = ({ onLogin, initialError = '' }) => {
         </div>
 
         {error && (
-          <div style={{ 
-            background: error.includes('successful') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
-            color: error.includes('successful') ? 'var(--success)' : 'var(--danger)',
-            padding: '0.75rem',
-            borderRadius: '10px',
-            fontSize: '0.8rem',
-            fontWeight: 700,
-            marginBottom: '1.25rem',
-            textAlign: 'center'
-          }}>
+          <div
+            style={{
+              background: error.includes('successful') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+              color: error.includes('successful') ? 'var(--success)' : 'var(--danger)',
+              padding: '0.7rem',
+              borderRadius: '10px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              marginBottom: '1rem',
+              textAlign: 'center'
+            }}
+          >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+            gap: '0.9rem 1rem',
+            alignItems: 'end'
+          }}
+        >
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label style={{ fontSize: '0.8rem' }}>Username</label>
-            <input 
-              className="input-field" 
-              required 
+            <input
+              className="input-field"
+              required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="e.g. admin"
-              style={{ padding: '0.65rem 1rem' }}
+              style={{ padding: '0.6rem 0.9rem' }}
             />
           </div>
 
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label style={{ fontSize: '0.8rem' }}>Password</label>
-            <input 
-              className="input-field" 
-              type="password" 
-              required 
+            <input
+              className="input-field"
+              type="password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              style={{ padding: '0.65rem 1rem' }}
+              placeholder="********"
+              style={{ padding: '0.6rem 0.9rem' }}
             />
           </div>
 
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: 0, gridColumn: '1 / -1' }}>
             <label style={{ fontSize: '0.8rem' }}>{isLogin ? 'Role Access' : 'Assign Role'}</label>
-            <select 
+            <select
               className="select-field"
               value={role}
               onChange={(e) => handleRoleChange(e.target.value)}
-              style={{ padding: '0.65rem 1rem' }}
+              style={{ padding: '0.6rem 0.9rem' }}
             >
               <option value="employee">Employee / User</option>
               <option value="admin">Administrator (Manager)</option>
             </select>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            style={{ 
-              padding: '0.85rem', 
-              background: 'var(--accent)', 
-              color: '#fff', 
-              border: 'none', 
-              borderRadius: '12px', 
-              fontWeight: 800, 
+            style={{
+              gridColumn: '1 / -1',
+              padding: '0.8rem',
+              background: 'var(--accent)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '12px',
+              fontWeight: 800,
               fontSize: '0.9rem',
               cursor: 'pointer',
-              marginTop: '0.5rem',
+              marginTop: '0.2rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
