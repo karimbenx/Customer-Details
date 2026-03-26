@@ -112,23 +112,55 @@ const normalizeField = (field, defaultField) => {
 
 const normalizeFormConfig = (config) => {
   const incomingSections = Array.isArray(config) ? config : [];
-  return DEFAULT_FORM_CONFIG.map((defaultSection) => {
+  const normalizedDefaultSections = DEFAULT_FORM_CONFIG.map((defaultSection) => {
     const incomingSection = incomingSections.find((section) => section.id === defaultSection.id);
     if (!incomingSection) return defaultSection;
 
     const incomingFields = Array.isArray(incomingSection.fields) ? incomingSection.fields : [];
+    const mergedDefaultFields = defaultSection.fields.map((defaultField) =>
+      normalizeField(incomingFields.find((field) => field.key === defaultField.key), defaultField)
+    );
+    const extraFields = incomingFields.filter((field) => !defaultSection.fields.some((defaultField) => defaultField.key === field.key));
     return {
       ...defaultSection,
       ...incomingSection,
-      fields: defaultSection.fields.map((defaultField) =>
-        normalizeField(incomingFields.find((field) => field.key === defaultField.key), defaultField)
-      )
+      fields: [...mergedDefaultFields, ...extraFields]
     };
   });
+
+  const extraSections = incomingSections.filter((section) => !DEFAULT_FORM_CONFIG.some((defaultSection) => defaultSection.id === section.id));
+  return [...normalizedDefaultSections, ...extraSections];
+};
+
+const createEmptyField = () => ({
+  key: `customField${Date.now()}`,
+  label: 'New Field',
+  type: 'text',
+  placeholder: '',
+  width: 'full'
+});
+
+const createEmptySection = () => ({
+  id: `customSection${Date.now()}`,
+  title: 'New Card',
+  subtitle: 'Custom section',
+  fields: [createEmptyField()]
+});
+
+const buildEmptyFormData = (config, source = {}) => {
+  const next = { ...source };
+  config.forEach((section) => {
+    (section.fields || []).forEach((field) => {
+      if (!(field.key in next)) {
+        next[field.key] = field.type === 'radio' ? field.options?.[0] || '' : '';
+      }
+    });
+  });
+  return next;
 };
 
 const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(buildEmptyFormData(DEFAULT_FORM_CONFIG, {
     companyName: '',
     contactPerson: '',
     email: '',
@@ -151,7 +183,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     plan: '',
     actions: '',
     riskMitigation: ''
-  });
+  }));
 
   const [pastRecords, setPastRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -162,6 +194,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configError, setConfigError] = useState('');
+  const [optionDrafts, setOptionDrafts] = useState({});
 
   const fetchPlans = async () => {
     try {
@@ -194,7 +227,9 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       }
       const data = await res.json();
       if (Array.isArray(data)) {
-        setFormConfig(normalizeFormConfig(data));
+        const normalizedConfig = normalizeFormConfig(data);
+        setFormConfig(normalizedConfig);
+        setFormData((prev) => buildEmptyFormData(normalizedConfig, prev));
       }
     } catch (error) {
       console.error('Error fetching form config:', error);
@@ -221,6 +256,20 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       window.sessionStorage.removeItem(EDIT_DRAFT_STORAGE_KEY);
     }
   }, [view]);
+
+  useEffect(() => {
+    if (!showCustomizer) return;
+
+    const nextDrafts = {};
+    formConfig.forEach((section) => {
+      section.fields.forEach((field) => {
+        if (field.type === 'select' || field.type === 'radio') {
+          nextDrafts[`${section.id}.${field.key}`] = (field.options || []).join(', ');
+        }
+      });
+    });
+    setOptionDrafts(nextDrafts);
+  }, [formConfig, showCustomizer]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -306,6 +355,23 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     )));
   };
 
+  const addSection = () => {
+    const nextConfig = [...formConfig, createEmptySection()];
+    setFormConfig(nextConfig);
+    setFormData((prev) => buildEmptyFormData(nextConfig, prev));
+  };
+
+  const addFieldToSection = (sectionId) => {
+    const nextField = createEmptyField();
+    const nextConfig = formConfig.map((section) => (
+      section.id !== sectionId
+        ? section
+        : { ...section, fields: [...section.fields, nextField] }
+    ));
+    setFormConfig(nextConfig);
+    setFormData((prev) => ({ ...buildEmptyFormData(nextConfig, prev), [nextField.key]: '' }));
+  };
+
   const handleConfigSave = async () => {
     setIsSavingConfig(true);
     setConfigError('');
@@ -388,7 +454,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   };
 
   const handleEdit = (record) => {
-    const draft = {
+      const draft = buildEmptyFormData(formConfig, {
       _id: record._id,
       companyName: record.companyName || '',
       contactPerson: record.contactPerson || '',
@@ -412,8 +478,9 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       plan: record.plan || '',
       actions: record.actions || '',
       riskMitigation: record.riskMitigation || ''
-    };
-    window.sessionStorage.setItem(EDIT_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      });
+      Object.assign(draft, record.extraData || {});
+      window.sessionStorage.setItem(EDIT_DRAFT_STORAGE_KEY, JSON.stringify(draft));
     setFormData(draft);
     // Switch to form view via custom event defined in App.jsx
     window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
@@ -443,7 +510,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
 
   const handleNewPlan = () => {
     window.sessionStorage.removeItem(EDIT_DRAFT_STORAGE_KEY);
-    setFormData({
+    setFormData(buildEmptyFormData(formConfig, {
       companyName: '',
       contactPerson: '',
       email: '',
@@ -466,7 +533,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       plan: '',
       actions: '',
       riskMitigation: ''
-    });
+    }));
     window.dispatchEvent(new CustomEvent('changeTab', { detail: 'client-details' }));
     setActiveSectionId('customerDetails');
   };
@@ -768,6 +835,11 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   {configError}
                 </div>
               )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+                <button onClick={addSection} style={{ padding: '0.7rem 1rem', background: '#fff', border: '1px solid var(--border-light)', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
+                  Add New Card
+                </button>
+              </div>
               <div style={{ display: 'grid', gap: '1.25rem' }}>
                 {formConfig.map((section) => (
                   <div key={section.id} style={{ border: '1px solid var(--border-light)', borderRadius: '14px', padding: '1rem' }}>
@@ -780,6 +852,11 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                         <label>Section Subtitle</label>
                         <input className="input-field" value={section.subtitle} onChange={(e) => updateSectionMeta(section.id, 'subtitle', e.target.value)} />
                       </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+                      <button onClick={() => addFieldToSection(section.id)} style={{ padding: '0.55rem 0.85rem', background: 'var(--bg-home)', border: 'none', borderRadius: '9px', fontWeight: 700, cursor: 'pointer' }}>
+                        Add Field
+                      </button>
                     </div>
                     <div style={{ display: 'grid', gap: '0.85rem' }}>
                       {section.fields.map((field) => (
@@ -816,10 +893,12 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                           {(field.type === 'select' || field.type === 'radio') && (
                             <div className="form-group" style={{ marginBottom: 0, marginTop: '0.75rem' }}>
                               <label>Options (comma separated)</label>
-                              <input
-                                className="input-field"
-                                value={(field.options || []).join(', ')}
-                                onChange={(e) => updateSectionField(section.id, field.key, 'options', e.target.value.split(',').map((item) => item.trim()).filter(Boolean))}
+                              <textarea
+                                className="textarea-field"
+                                style={{ minHeight: '88px' }}
+                                value={optionDrafts[`${section.id}.${field.key}`] ?? ''}
+                                onChange={(e) => setOptionDrafts((prev) => ({ ...prev, [`${section.id}.${field.key}`]: e.target.value }))}
+                                onBlur={(e) => updateSectionField(section.id, field.key, 'options', e.target.value.split(/[\n,]/).map((item) => item.trim()).filter(Boolean))}
                               />
                             </div>
                           )}

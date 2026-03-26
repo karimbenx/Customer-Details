@@ -167,6 +167,7 @@ const initDB = async () => {
       plan TEXT,
       actions TEXT,
       risk_mitigation TEXT,
+      extra_data JSONB,
       last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
@@ -174,6 +175,7 @@ const initDB = async () => {
   await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS owner_username TEXT`;
   await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS proposal TEXT`;
   await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS revised_proposal TEXT`;
+  await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS extra_data JSONB`;
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -230,6 +232,8 @@ app.post('/api/save-plan', authMiddleware, async (req, res) => {
     try {
         await initDB();
         const { _id, companyName, contactPerson, email, phone, mobile2, whatsapp, industry, review, expectations, goals, proposal, revisedProposal, xrFocus, landscape, drivers, canSellExtra, opportunities, strategy, stakeholders, plan, actions, riskMitigation } = req.body;
+        const knownKeys = new Set(['_id', 'companyName', 'contactPerson', 'email', 'phone', 'mobile2', 'whatsapp', 'industry', 'review', 'expectations', 'goals', 'proposal', 'revisedProposal', 'xrFocus', 'landscape', 'drivers', 'canSellExtra', 'opportunities', 'strategy', 'stakeholders', 'plan', 'actions', 'riskMitigation']);
+        const extraData = Object.fromEntries(Object.entries(req.body).filter(([key]) => !knownKeys.has(key)));
         const ownerUserId = req.user.id;
         const ownerUsername = req.user.username;
         
@@ -246,11 +250,11 @@ app.post('/api/save-plan', authMiddleware, async (req, res) => {
             INSERT INTO account_plans (
                 id, owner_user_id, owner_username, company_name, contact_person, email, phone, mobile_2, whatsapp, industry, review, expectations, goals, proposal, revised_proposal,
                 xr_focus, landscape, drivers, can_sell_extra, opportunities, strategy, stakeholders, 
-                plan, actions, risk_mitigation, last_updated
+                plan, actions, risk_mitigation, extra_data, last_updated
             ) VALUES (
                 ${finalId}, ${ownerUserId}, ${ownerUsername}, ${companyName}, ${contactPerson}, ${email}, ${phone}, ${mobile2}, ${whatsapp}, ${industry}, ${review}, ${expectations}, ${goals}, ${proposal}, ${revisedProposal},
                 ${xrFocus}, ${landscape}, ${drivers}, ${canSellExtra}, ${opportunities}, ${strategy}, ${stakeholders}, 
-                ${plan}, ${actions}, ${riskMitigation}, CURRENT_TIMESTAMP
+                ${plan}, ${actions}, ${riskMitigation}, ${JSON.stringify(extraData)}::jsonb, CURRENT_TIMESTAMP
             )
             ON CONFLICT (id) DO UPDATE SET
                 owner_user_id = CASE
@@ -283,6 +287,7 @@ app.post('/api/save-plan', authMiddleware, async (req, res) => {
                 plan = EXCLUDED.plan,
                 actions = EXCLUDED.actions,
                 risk_mitigation = EXCLUDED.risk_mitigation,
+                extra_data = EXCLUDED.extra_data,
                 last_updated = CURRENT_TIMESTAMP
             RETURNING *
         `;
@@ -307,6 +312,7 @@ app.get('/api/plans', authMiddleware, async (req, res) => {
                      email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, proposal, revised_proposal AS "revisedProposal", xr_focus AS "xrFocus",
                      landscape, drivers, can_sell_extra AS "canSellExtra", opportunities, strategy,
                      stakeholders, plan, actions, risk_mitigation AS "riskMitigation", last_updated AS "lastUpdated"
+                     , extra_data AS "extraData"
               FROM account_plans
               ORDER BY last_updated DESC
             `
@@ -316,6 +322,7 @@ app.get('/api/plans', authMiddleware, async (req, res) => {
                      email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, proposal, revised_proposal AS "revisedProposal", xr_focus AS "xrFocus",
                      landscape, drivers, can_sell_extra AS "canSellExtra", opportunities, strategy,
                      stakeholders, plan, actions, risk_mitigation AS "riskMitigation", last_updated AS "lastUpdated"
+                     , extra_data AS "extraData"
               FROM account_plans
               WHERE owner_user_id = ${req.user.id}
               ORDER BY last_updated DESC
