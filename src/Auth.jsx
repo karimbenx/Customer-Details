@@ -45,6 +45,17 @@ const Auth = ({ onLogin }) => {
     }
   };
 
+  const handleRoleChange = (newRole) => {
+    setRole(newRole);
+    if (isLogin && newRole === 'admin') {
+      setUsername('admin');
+      setPassword('admin');
+    } else if (isLogin && newRole === 'employee') {
+      setUsername('');
+      setPassword('');
+    }
+  }
+
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -52,69 +63,107 @@ const Auth = ({ onLogin }) => {
       alignItems: 'center', 
       justifyContent: 'center', 
       background: 'var(--bg-home)',
-      padding: '2rem'
+      padding: '1.5rem'
     }}>
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="glass-card" 
-        style={{ width: '100%', maxWidth: '440px', padding: '3rem' }}
+        style={{ width: '100%', maxWidth: '400px', padding: '2.5rem' }}
       >
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ 
-            width: '48px', 
-            height: '48px', 
+            width: '40px', 
+            height: '40px', 
             background: 'var(--accent)', 
-            borderRadius: '12px', 
+            borderRadius: '10px', 
             display: 'inline-flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            marginBottom: '1rem',
+            marginBottom: '0.75rem',
             boxShadow: '0 8px 16px var(--accent-glow)'
           }}>
-            <Zap size={24} color="#fff" fill="#fff" />
+            <Zap size={22} color="#fff" fill="#fff" />
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900 }}>
-            {isLogin ? 'Welcome Back' : 'Create Account'}
-          </h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem', fontWeight: 500 }}>
-            Enter your credentials to access ClientSync
-          </p>
+          <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900 }}>ClientSync</h1>
+        </div>
+
+        {/* Tab Control */}
+        <div style={{ 
+          display: 'flex', 
+          background: 'var(--bg-home)', 
+          padding: '0.4rem', 
+          borderRadius: '12px', 
+          marginBottom: '2rem' 
+        }}>
+          <button 
+            onClick={() => setIsLogin(true)}
+            style={{
+              flex: 1,
+              padding: '0.6rem',
+              border: 'none',
+              borderRadius: '8px',
+              background: isLogin ? '#fff' : 'transparent',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              color: isLogin ? 'var(--accent)' : 'var(--text-muted)',
+              boxShadow: isLogin ? 'var(--shadow-sm)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Login
+          </button>
+          <button 
+            onClick={() => setIsLogin(false)}
+            style={{
+              flex: 1,
+              padding: '0.6rem',
+              border: 'none',
+              borderRadius: '8px',
+              background: !isLogin ? '#fff' : 'transparent',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              color: !isLogin ? 'var(--accent)' : 'var(--text-muted)',
+              boxShadow: !isLogin ? 'var(--shadow-sm)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Sign Up
+          </button>
         </div>
 
         {error && (
           <div style={{ 
             background: error.includes('successful') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
             color: error.includes('successful') ? 'var(--success)' : 'var(--danger)',
-            padding: '1rem',
+            padding: '0.75rem',
             borderRadius: '10px',
-            fontSize: '0.9rem',
-            fontWeight: 600,
-            marginBottom: '1.5rem',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            marginBottom: '1.25rem',
             textAlign: 'center'
           }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.25rem' }}>
-          <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <User size={14} /> Username
-            </label>
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.8rem' }}>Username</label>
             <input 
               className="input-field" 
               required 
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              placeholder="e.g. admin"
+              style={{ padding: '0.65rem 1rem' }}
             />
           </div>
 
-          <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Lock size={14} /> Password
-            </label>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.8rem' }}>Password</label>
             <input 
               className="input-field" 
               type="password" 
@@ -122,30 +171,20 @@ const Auth = ({ onLogin }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              style={{ padding: '0.65rem 1rem' }}
             />
           </div>
 
-          <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldCheck size={14} /> {isLogin ? 'Login As' : 'Assigned Role'}
-            </label>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.8rem' }}>{isLogin ? 'Role Access' : 'Assign Role'}</label>
             <select 
               className="select-field"
               value={role}
-              onChange={(e) => {
-                const newRole = e.target.value;
-                setRole(newRole);
-                if (isLogin && newRole === 'admin') {
-                  setUsername('admin');
-                  setPassword('admin');
-                } else if (isLogin && newRole === 'employee') {
-                  setUsername('');
-                  setPassword('');
-                }
-              }}
+              onChange={(e) => handleRoleChange(e.target.value)}
+              style={{ padding: '0.65rem 1rem' }}
             >
               <option value="employee">Employee / User</option>
-              <option value="admin">Administrator</option>
+              <option value="admin">Administrator (Manager)</option>
             </select>
           </div>
 
@@ -153,41 +192,30 @@ const Auth = ({ onLogin }) => {
             type="submit" 
             disabled={loading}
             style={{ 
-              padding: '1rem', 
+              padding: '0.85rem', 
               background: 'var(--accent)', 
               color: '#fff', 
               border: 'none', 
               borderRadius: '12px', 
               fontWeight: 800, 
-              fontSize: '1rem',
+              fontSize: '0.9rem',
               cursor: 'pointer',
-              marginTop: '1rem',
+              marginTop: '0.5rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.75rem',
+              gap: '0.6rem',
               boxShadow: '0 8px 16px var(--accent-glow)'
             }}
           >
-            {loading ? 'Processing...' : isLogin ? <><LogIn size={20} /> Login</> : <><UserPlus size={20} /> Sign Up</>}
+            {loading ? 'Processing...' : (
+              <>
+                {isLogin ? <LogIn size={18} /> : <UserPlus size={18} />}
+                {isLogin ? 'Sign In' : 'Create Account'}
+              </>
+            )}
           </button>
         </form>
-
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <button 
-            onClick={() => setIsLogin(!isLogin)}
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              color: 'var(--accent)', 
-              fontWeight: 700, 
-              cursor: 'pointer',
-              fontSize: '0.9rem'
-            }}
-          >
-            {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login"}
-          </button>
-        </div>
       </motion.div>
     </div>
   );

@@ -52,6 +52,18 @@ const initDB = async () => {
       password TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'employee'
     );
+    CREATE TABLE IF NOT EXISTS articles (
+      id SERIAL PRIMARY KEY,
+      topic TEXT,
+      source TEXT,
+      title TEXT,
+      snippet TEXT,
+      link TEXT,
+      date TEXT,
+      page TEXT,
+      sentiment TEXT,
+      last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
   `;
 
   // Default admin creation outside SQL template
@@ -146,6 +158,22 @@ app.delete('/api/plan/:id', async (req, res) => {
         await sql`DELETE FROM account_plans WHERE id = ${req.params.id}`;
         res.json({ success: true });
     } catch (error) {
+        res.status(500).json({ status: 'error' });
+    }
+});
+
+// 4. Get Intelligence Articles (Signals)
+app.get('/api/articles', async (req, res) => {
+    try {
+        await initDB();
+        const records = await sql`
+            SELECT id AS "_id", topic, source, title, snippet, link, date, page, sentiment 
+            FROM articles 
+            ORDER BY last_updated DESC
+        `;
+        res.json(records);
+    } catch (error) {
+        console.error('SQL Articles Error:', error);
         res.status(500).json({ status: 'error' });
     }
 });
