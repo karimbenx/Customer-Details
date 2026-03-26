@@ -20,12 +20,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
-const AccountPlanningDashboard = ({ view = 'form' }) => {
+const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const [formData, setFormData] = useState({
     companyName: '',
     contactPerson: '',
     email: '',
     phone: '',
+    mobile2: '',
+    whatsapp: '',
     industry: '',
     review: '',
     expectations: '',
@@ -94,8 +96,18 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
               <input className="input-field" type="email" placeholder="email@company.com" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Phone / WhatsApp</label>
+              <label>WhatsApp Number</label>
+              <input className="input-field" placeholder="WhatsApp number" value={formData.whatsapp} onChange={(e) => handleInputChange('whatsapp', e.target.value)} />
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="form-group">
+              <label>Phone (Primary)</label>
               <input className="input-field" placeholder="+1 555-0123" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Secondary Mobile</label>
+              <input className="input-field" placeholder="+1 555-4567" value={formData.mobile2} onChange={(e) => handleInputChange('mobile2', e.target.value)} />
             </div>
           </div>
         </div>
@@ -277,6 +289,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
       contactPerson: record.contactPerson || '',
       email: record.email || '',
       phone: record.phone || '',
+      mobile2: record.mobile2 || '',
+      whatsapp: record.whatsapp || '',
       industry: record.industry || '',
       review: record.review || '',
       expectations: record.expectations || '',
@@ -317,6 +331,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
       contactPerson: '',
       email: '',
       phone: '',
+      mobile2: '',
+      whatsapp: '',
       industry: '',
       review: '',
       expectations: '',
@@ -378,7 +394,8 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
                 <tr>
                   <th>Company & Industry</th>
                   <th>Contact Person</th>
-                  <th>Contact Details</th>
+                  <th>Primary Contact</th>
+                  <th>Extra Contacts</th>
                   <th>Strategy</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
@@ -412,6 +429,18 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
                         </div>
                       </td>
                       <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
+                            <Phone size={12} color="var(--text-muted)" />
+                            <span style={{ color: 'var(--text-muted)' }}>M2:</span> {r.mobile2 || 'N/A'}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
+                            <Zap size={12} color="var(--success)" fill="var(--success)" />
+                            <span style={{ color: 'var(--text-muted)' }}>WA:</span> {r.whatsapp || 'N/A'}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
                         <span className={`badge ${r.strategy === 'Grow' ? 'badge-primary' : ''}`} style={{ 
                           background: r.strategy === 'Grow' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(16, 185, 129, 0.1)',
                           color: r.strategy === 'Grow' ? 'var(--accent)' : 'var(--success)'
@@ -428,13 +457,15 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
                           >
                             <Edit size={16} />
                           </button>
-                          <button 
-                            onClick={() => handleDelete(r._id)}
-                            className="action-btn delete"
-                            title="Delete Plan"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          {user?.role === 'admin' && (
+                            <button 
+                              onClick={() => handleDelete(r._id)}
+                              className="action-btn delete"
+                              title="Delete Plan"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -452,7 +483,7 @@ const AccountPlanningDashboard = ({ view = 'form' }) => {
 
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: activeSectionId ? 'repeat(6, 1fr)' : 'repeat(3, 1fr)',
+            gridTemplateColumns: activeSectionId ? 'repeat(auto-fit, minmax(100px, 1fr))' : 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: activeSectionId ? '0.5rem' : '1.5rem',
             marginBottom: '1.5rem',
             transition: 'all 0.3s ease'

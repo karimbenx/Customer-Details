@@ -5,6 +5,8 @@ import postgres from 'postgres';
 import serverless from 'serverless-http';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -24,6 +26,8 @@ const initDB = async () => {
       contact_person TEXT,
       email TEXT,
       phone TEXT,
+      mobile_2 TEXT,
+      whatsapp TEXT,
       industry TEXT,
       review TEXT,
       expectations TEXT,
@@ -40,6 +44,12 @@ const initDB = async () => {
       risk_mitigation TEXT,
       last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'employee'
+    );
   `;
 };
 
@@ -49,17 +59,17 @@ const initDB = async () => {
 app.post('/api/save-plan', async (req, res) => {
     try {
         await initDB();
-        const { _id, companyName, contactPerson, email, phone, industry, review, expectations, goals, xrFocus, landscape, drivers, canSellExtra, opportunities, strategy, stakeholders, plan, actions, riskMitigation } = req.body;
+        const { _id, companyName, contactPerson, email, phone, mobile2, whatsapp, industry, review, expectations, goals, xrFocus, landscape, drivers, canSellExtra, opportunities, strategy, stakeholders, plan, actions, riskMitigation } = req.body;
         
         const finalId = _id || Date.now().toString();
         
         const result = await sql`
             INSERT INTO account_plans (
-                id, company_name, contact_person, email, phone, industry, review, expectations, goals, 
+                id, company_name, contact_person, email, phone, mobile_2, whatsapp, industry, review, expectations, goals, 
                 xr_focus, landscape, drivers, can_sell_extra, opportunities, strategy, stakeholders, 
                 plan, actions, risk_mitigation, last_updated
             ) VALUES (
-                ${finalId}, ${companyName}, ${contactPerson}, ${email}, ${phone}, ${industry}, ${review}, ${expectations}, ${goals}, 
+                ${finalId}, ${companyName}, ${contactPerson}, ${email}, ${phone}, ${mobile2}, ${whatsapp}, ${industry}, ${review}, ${expectations}, ${goals}, 
                 ${xrFocus}, ${landscape}, ${drivers}, ${canSellExtra}, ${opportunities}, ${strategy}, ${stakeholders}, 
                 ${plan}, ${actions}, ${riskMitigation}, CURRENT_TIMESTAMP
             )
@@ -68,6 +78,8 @@ app.post('/api/save-plan', async (req, res) => {
                 contact_person = EXCLUDED.contact_person,
                 email = EXCLUDED.email,
                 phone = EXCLUDED.phone,
+                mobile_2 = EXCLUDED.mobile_2,
+                whatsapp = EXCLUDED.whatsapp,
                 industry = EXCLUDED.industry,
                 review = EXCLUDED.review,
                 expectations = EXCLUDED.expectations,
@@ -101,7 +113,7 @@ app.get('/api/plans', async (req, res) => {
         await initDB();
         const records = await sql`
             SELECT id AS "_id", company_name AS "companyName", contact_person AS "contactPerson", 
-                   email, phone, industry, review, expectations, goals, xr_focus AS "xrFocus", 
+                   email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, xr_focus AS "xrFocus", 
                    landscape, drivers, can_sell_extra AS "canSellExtra", opportunities, strategy, 
                    stakeholders, plan, actions, risk_mitigation AS "riskMitigation", last_updated AS "lastUpdated"
             FROM account_plans 
@@ -122,6 +134,44 @@ app.delete('/api/plan/:id', async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ status: 'error' });
+    }
+});
+
+// 4. Signup
+app.post('/api/signup', async (req, res) => {
+    try {
+        await initDB();
+        const { username, password, role } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        const result = await sql`
+            INSERT INTO users (username, password, role)
+            VALUES (${username}, ${hashedPassword}, ${role || 'employee'})
+            RETURNING id, username, role
+        `;
+        res.json({ success: true, user: result[0] });
+    } catch (error) {
+        console.error('Signup Error:', error);
+        res.status(500).json({ error: 'User already exists or database error' });
+    }
+});
+
+// 5. Login
+app.post('/api/login', async (req, res) => {
+    try {
+        await initDB();
+        const { username, password } = req.body;
+        const user = await sql`SELECT * FROM users WHERE username = ${username}`;
+        
+        if (user.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+        
+        const valid = await bcrypt.compare(password, user[0].password);
+        if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+        
+        const token = jwt.sign({ id: user[0].id, role: user[0].role }, process.env.JWT_SECRET || 'sync-secret', { expiresIn: '1d' });
+        res.json({ success: true, user: { username: user[0].username, role: user[0].role }, token });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
     }
 });
 

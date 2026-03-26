@@ -13,9 +13,22 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import AccountPlanningDashboard from './AccountPlanningDashboard';
 import IntelligenceDashboard from './IntelligenceDashboard';
+import Auth from './Auth';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('client-details'); // Default to Client Details
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+
+  const handleLogin = (u, t) => {
+    setUser(u);
+    setToken(t);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setToken(null);
+  };
 
   const navItems = [
     { id: 'client-details', label: 'Client Profiles', icon: <Users size={18} /> },
@@ -29,6 +42,8 @@ const App = () => {
     window.addEventListener('changeTab', handleTabChange);
     return () => window.removeEventListener('changeTab', handleTabChange);
   }, []);
+
+  if (!user) return <Auth onLogin={handleLogin} />;
 
   return (
     <div className="app-wrapper">
@@ -99,9 +114,38 @@ const App = () => {
             letterSpacing: '0.1em',
             background: 'var(--bg-home)',
             padding: '0.4rem 0.8rem',
-            borderRadius: '6px'
+            borderRadius: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
           }}>
-            Enterprise / <span style={{ color: 'var(--accent)' }}>v3.0 PRO</span>
+            {user.role} / <span style={{ color: 'var(--accent)' }}>v3.0 PRO</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginLeft: '1rem', paddingLeft: '1.5rem', borderLeft: '1px solid var(--border-light)' }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>{user.username}</div>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600 }}>{user.role.toUpperCase()}</div>
+            </div>
+            <button 
+              onClick={handleLogout}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'rgba(239, 68, 68, 0.05)',
+                color: 'var(--danger)',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              title="Logout"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
         </div>
       </header>
@@ -119,6 +163,8 @@ const App = () => {
           >
             <AccountPlanningDashboard 
               view={activeTab === 'records' ? 'records' : 'form'} 
+              user={user}
+              token={token}
             />
           </motion.div>
         </AnimatePresence>
