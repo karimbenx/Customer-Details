@@ -18,7 +18,7 @@ app.use(express.json());
 // Neon Postgres Connection (Standard connection string)
 const sql = postgres(process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL, { ssl: 'require' });
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
-const SESSION_ACTIVITY_TIMEOUT_MS = 30 * 1000;
+const SESSION_ACTIVITY_TIMEOUT_MS = 8 * 1000;
 const DEFAULT_FORM_CONFIG = [
   {
     id: 'customerDetails',

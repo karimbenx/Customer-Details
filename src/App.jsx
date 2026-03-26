@@ -18,9 +18,9 @@ import Auth from './Auth';
 const AUTH_STORAGE_KEY = 'clientsync-auth-session';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const TAB_ID_STORAGE_KEY = 'clientsync-tab-id';
-const TAB_HEARTBEAT_MS = 5000;
-const TAB_STALE_MS = 15000;
-const SESSION_PING_MS = 10000;
+const TAB_HEARTBEAT_MS = 2000;
+const TAB_STALE_MS = 6000;
+const SESSION_PING_MS = 3000;
 
 const decodeJwtPayload = (token) => {
   try {
@@ -52,6 +52,18 @@ const App = () => {
   const [authMessage, setAuthMessage] = useState('');
   const tabId = getTabId();
 
+  const notifyServerLogout = useCallback((sessionToken, keepalive = false) => {
+    if (!sessionToken) return Promise.resolve();
+
+    return fetch(`${API_BASE_URL}/api/logout`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${sessionToken}`
+      },
+      keepalive
+    });
+  }, []);
+
   const handleLogin = (u, t) => {
     const payload = decodeJwtPayload(t);
     const expiresAt = payload?.exp ? payload.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000;
@@ -78,19 +90,14 @@ const App = () => {
     try {
       const parsedSession = savedSession ? JSON.parse(savedSession) : null;
       if (parsedSession?.token) {
-        await fetch(`${API_BASE_URL}/api/logout`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${parsedSession.token}`
-          }
-        });
+        await notifyServerLogout(parsedSession.token);
       }
     } catch (error) {
       // Best-effort logout; always clear local state.
     } finally {
       clearSession();
     }
-  }, [clearSession]);
+  }, [clearSession, notifyServerLogout]);
 
   const navItems = [
     { id: 'client-details', label: 'Client Profiles', icon: <Users size={18} /> },
@@ -260,6 +267,24 @@ const App = () => {
     const intervalId = window.setInterval(pingSession, SESSION_PING_MS);
     return () => window.clearInterval(intervalId);
   }, [clearSession, token, user]);
+
+  React.useEffect(() => {
+    if (!token) return undefined;
+
+    const releaseServerSession = () => {
+      notifyServerLogout(token, true).catch(() => {
+        // Ignore unload-time network failures.
+      });
+    };
+
+    window.addEventListener('pagehide', releaseServerSession);
+    window.addEventListener('beforeunload', releaseServerSession);
+
+    return () => {
+      window.removeEventListener('pagehide', releaseServerSession);
+      window.removeEventListener('beforeunload', releaseServerSession);
+    };
+  }, [notifyServerLogout, token]);
 
   if (!isSessionReady) return <div className="loader">Restoring session...</div>;
 
