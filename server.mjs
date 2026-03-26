@@ -41,7 +41,9 @@ const DEFAULT_FORM_CONFIG = [
     fields: [
       { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'full' },
       { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'full' },
-      { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' }
+      { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' },
+      { key: 'proposal', label: 'Proposal (Number only)', type: 'number', placeholder: 'Enter proposal amount', width: 'half' },
+      { key: 'revisedProposal', label: 'Revised Proposal (Number only)', type: 'number', placeholder: 'Enter revised proposal amount', width: 'half' }
     ]
   },
   {
@@ -49,7 +51,7 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Customer Priorities',
     subtitle: 'Drivers and tech focus',
     fields: [
-      { key: 'xrFocus', label: 'Primary XR Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI'] },
+      { key: 'xrFocus', label: 'Primary Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI', 'Experience Centre'] },
       { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'full' },
       { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'full' }
     ]
@@ -170,6 +172,8 @@ const initDB = async () => {
   `;
   await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS owner_user_id INTEGER`;
   await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS owner_username TEXT`;
+  await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS proposal TEXT`;
+  await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS revised_proposal TEXT`;
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -225,7 +229,7 @@ const initDB = async () => {
 app.post('/api/save-plan', authMiddleware, async (req, res) => {
     try {
         await initDB();
-        const { _id, companyName, contactPerson, email, phone, mobile2, whatsapp, industry, review, expectations, goals, xrFocus, landscape, drivers, canSellExtra, opportunities, strategy, stakeholders, plan, actions, riskMitigation } = req.body;
+        const { _id, companyName, contactPerson, email, phone, mobile2, whatsapp, industry, review, expectations, goals, proposal, revisedProposal, xrFocus, landscape, drivers, canSellExtra, opportunities, strategy, stakeholders, plan, actions, riskMitigation } = req.body;
         const ownerUserId = req.user.id;
         const ownerUsername = req.user.username;
         
@@ -240,11 +244,11 @@ app.post('/api/save-plan', authMiddleware, async (req, res) => {
         
         const result = await sql`
             INSERT INTO account_plans (
-                id, owner_user_id, owner_username, company_name, contact_person, email, phone, mobile_2, whatsapp, industry, review, expectations, goals, 
+                id, owner_user_id, owner_username, company_name, contact_person, email, phone, mobile_2, whatsapp, industry, review, expectations, goals, proposal, revised_proposal,
                 xr_focus, landscape, drivers, can_sell_extra, opportunities, strategy, stakeholders, 
                 plan, actions, risk_mitigation, last_updated
             ) VALUES (
-                ${finalId}, ${ownerUserId}, ${ownerUsername}, ${companyName}, ${contactPerson}, ${email}, ${phone}, ${mobile2}, ${whatsapp}, ${industry}, ${review}, ${expectations}, ${goals}, 
+                ${finalId}, ${ownerUserId}, ${ownerUsername}, ${companyName}, ${contactPerson}, ${email}, ${phone}, ${mobile2}, ${whatsapp}, ${industry}, ${review}, ${expectations}, ${goals}, ${proposal}, ${revisedProposal},
                 ${xrFocus}, ${landscape}, ${drivers}, ${canSellExtra}, ${opportunities}, ${strategy}, ${stakeholders}, 
                 ${plan}, ${actions}, ${riskMitigation}, CURRENT_TIMESTAMP
             )
@@ -267,6 +271,8 @@ app.post('/api/save-plan', authMiddleware, async (req, res) => {
                 review = EXCLUDED.review,
                 expectations = EXCLUDED.expectations,
                 goals = EXCLUDED.goals,
+                proposal = EXCLUDED.proposal,
+                revised_proposal = EXCLUDED.revised_proposal,
                 xr_focus = EXCLUDED.xr_focus,
                 landscape = EXCLUDED.landscape,
                 drivers = EXCLUDED.drivers,
@@ -298,7 +304,7 @@ app.get('/api/plans', authMiddleware, async (req, res) => {
           ? await sql`
               SELECT id AS "_id", owner_user_id AS "ownerUserId", owner_username AS "ownerUsername",
                      company_name AS "companyName", contact_person AS "contactPerson",
-                     email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, xr_focus AS "xrFocus",
+                     email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, proposal, revised_proposal AS "revisedProposal", xr_focus AS "xrFocus",
                      landscape, drivers, can_sell_extra AS "canSellExtra", opportunities, strategy,
                      stakeholders, plan, actions, risk_mitigation AS "riskMitigation", last_updated AS "lastUpdated"
               FROM account_plans
@@ -307,7 +313,7 @@ app.get('/api/plans', authMiddleware, async (req, res) => {
           : await sql`
               SELECT id AS "_id", owner_user_id AS "ownerUserId", owner_username AS "ownerUsername",
                      company_name AS "companyName", contact_person AS "contactPerson",
-                     email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, xr_focus AS "xrFocus",
+                     email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, proposal, revised_proposal AS "revisedProposal", xr_focus AS "xrFocus",
                      landscape, drivers, can_sell_extra AS "canSellExtra", opportunities, strategy,
                      stakeholders, plan, actions, risk_mitigation AS "riskMitigation", last_updated AS "lastUpdated"
               FROM account_plans

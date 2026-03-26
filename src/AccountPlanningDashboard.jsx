@@ -44,7 +44,9 @@ const DEFAULT_FORM_CONFIG = [
     fields: [
       { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'full' },
       { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'full' },
-      { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' }
+      { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' },
+      { key: 'proposal', label: 'Proposal (Number only)', type: 'number', placeholder: 'Enter proposal amount', width: 'half' },
+      { key: 'revisedProposal', label: 'Revised Proposal (Number only)', type: 'number', placeholder: 'Enter revised proposal amount', width: 'half' }
     ]
   },
   {
@@ -52,7 +54,7 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Customer Priorities',
     subtitle: 'Drivers and tech focus',
     fields: [
-      { key: 'xrFocus', label: 'Primary XR Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI'] },
+      { key: 'xrFocus', label: 'Primary Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI', 'Experience Centre'] },
       { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'full' },
       { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'full' }
     ]
@@ -96,6 +98,35 @@ const sectionIcons = {
   action: <ClipboardCheck />
 };
 
+const normalizeField = (field, defaultField) => {
+  const merged = { ...defaultField, ...(field || {}) };
+  if (merged.key === 'xrFocus') {
+    return {
+      ...merged,
+      label: 'Primary Focus',
+      options: Array.from(new Set([...(merged.options || []), 'Experience Centre']))
+    };
+  }
+  return merged;
+};
+
+const normalizeFormConfig = (config) => {
+  const incomingSections = Array.isArray(config) ? config : [];
+  return DEFAULT_FORM_CONFIG.map((defaultSection) => {
+    const incomingSection = incomingSections.find((section) => section.id === defaultSection.id);
+    if (!incomingSection) return defaultSection;
+
+    const incomingFields = Array.isArray(incomingSection.fields) ? incomingSection.fields : [];
+    return {
+      ...defaultSection,
+      ...incomingSection,
+      fields: defaultSection.fields.map((defaultField) =>
+        normalizeField(incomingFields.find((field) => field.key === defaultField.key), defaultField)
+      )
+    };
+  });
+};
+
 const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const [formData, setFormData] = useState({
     companyName: '',
@@ -108,6 +139,8 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     review: '',
     expectations: '',
     goals: '',
+    proposal: '',
+    revisedProposal: '',
     xrFocus: 'None',
     landscape: '',
     drivers: '',
@@ -161,7 +194,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       }
       const data = await res.json();
       if (Array.isArray(data)) {
-        setFormConfig(data);
+        setFormConfig(normalizeFormConfig(data));
       }
     } catch (error) {
       console.error('Error fetching form config:', error);
@@ -366,6 +399,8 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       review: record.review || '',
       expectations: record.expectations || '',
       goals: record.goals || '',
+      proposal: record.proposal || '',
+      revisedProposal: record.revisedProposal || '',
       xrFocus: record.xrFocus || 'None',
       landscape: record.landscape || '',
       drivers: record.drivers || '',
@@ -418,6 +453,8 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       review: '',
       expectations: '',
       goals: '',
+      proposal: '',
+      revisedProposal: '',
       xrFocus: 'None',
       landscape: '',
       drivers: '',
@@ -541,7 +578,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                       </td>
                       {user?.role === 'admin' && (
                         <td>
-                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                             <button 
                               onClick={() => handleEdit(r)}
                               className="action-btn edit"
@@ -549,12 +586,24 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                             >
                               <Edit size={16} />
                             </button>
+                            <button
+                              onClick={() => handleEdit(r)}
+                              style={{ padding: '0.55rem 0.9rem', borderRadius: '9px', border: '1px solid var(--border-light)', background: '#fff', fontWeight: 700, cursor: 'pointer', color: 'var(--accent)' }}
+                            >
+                              Edit
+                            </button>
                             <button 
                               onClick={() => handleDelete(r._id)}
                               className="action-btn delete"
                               title="Delete Plan"
                             >
                               <Trash2 size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(r._id)}
+                              style={{ padding: '0.55rem 0.9rem', borderRadius: '9px', border: '1px solid rgba(239,68,68,0.18)', background: 'rgba(239,68,68,0.06)', fontWeight: 700, cursor: 'pointer', color: 'var(--danger)' }}
+                            >
+                              Delete
                             </button>
                           </div>
                         </td>
@@ -753,6 +802,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                               <select className="select-field" value={field.type} onChange={(e) => updateSectionField(section.id, field.key, 'type', e.target.value)}>
                                 <option value="text">Text</option>
                                 <option value="email">Email</option>
+                                <option value="number">Number</option>
                                 <option value="textarea">Paragraph</option>
                                 <option value="select">Dropdown</option>
                                 <option value="radio">Radio</option>
