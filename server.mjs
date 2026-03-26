@@ -39,8 +39,8 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Account Potential',
     subtitle: 'History and strategic goals',
     fields: [
-      { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'full' },
-      { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'full' },
+      { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'half' },
+      { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'half' },
       { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' },
       { key: 'proposal', label: 'Proposal (Number only)', type: 'number', placeholder: 'Enter proposal amount', width: 'half' },
       { key: 'revisedProposal', label: 'Revised Proposal (Number only)', type: 'number', placeholder: 'Enter revised proposal amount', width: 'half' }
@@ -52,8 +52,8 @@ const DEFAULT_FORM_CONFIG = [
     subtitle: 'Drivers and tech focus',
     fields: [
       { key: 'xrFocus', label: 'Primary Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI', 'Experience Centre'] },
-      { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'full' },
-      { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'full' }
+      { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'half' },
+      { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'half' }
     ]
   },
   {
@@ -81,8 +81,8 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Relationships',
     subtitle: 'Stakeholders and mapping',
     fields: [
-      { key: 'stakeholders', label: 'Key Executives & Stakeholders', type: 'textarea', placeholder: 'List influential points of contact...', width: 'full' },
-      { key: 'plan', label: 'Advancement Plan', type: 'textarea', placeholder: 'How will we strengthen these ties?', width: 'full' }
+      { key: 'stakeholders', label: 'Key Executives & Stakeholders', type: 'textarea', placeholder: 'List influential points of contact...', width: 'half' },
+      { key: 'plan', label: 'Advancement Plan', type: 'textarea', placeholder: 'How will we strengthen these ties?', width: 'half' }
     ]
   },
   {
@@ -90,8 +90,8 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Action Plan',
     subtitle: 'Critical actions and risk',
     fields: [
-      { key: 'actions', label: 'Critical Actions', type: 'textarea', placeholder: 'Immediate steps required...', width: 'full' },
-      { key: 'riskMitigation', label: 'Risk Mitigation', type: 'textarea', placeholder: 'Potential blockers and solutions...', width: 'full' }
+      { key: 'actions', label: 'Critical Actions', type: 'textarea', placeholder: 'Immediate steps required...', width: 'half' },
+      { key: 'riskMitigation', label: 'Risk Mitigation', type: 'textarea', placeholder: 'Potential blockers and solutions...', width: 'half' }
     ]
   }
 ];

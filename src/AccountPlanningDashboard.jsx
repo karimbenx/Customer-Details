@@ -110,7 +110,7 @@ const normalizeField = (field, defaultField) => {
   if (['review', 'expectations', 'landscape', 'drivers', 'stakeholders', 'plan', 'actions', 'riskMitigation'].includes(merged.key)) {
     return {
       ...merged,
-      width: merged.width === 'full' ? 'half' : merged.width
+      width: 'half'
     };
   }
   return merged;
