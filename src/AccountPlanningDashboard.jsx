@@ -14,7 +14,10 @@ import {
   Trash2,
   Phone,
   Mail,
-  User
+  User,
+  Zap,
+  ShieldCheck,
+  Eye
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -380,26 +383,29 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
 
       {view === 'records' ? (
         <div className="glass-card animate-in">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-            <h1 style={{ margin: 0 }}>Strategic Database</h1>
-            <button 
-              onClick={handleNewPlan}
-              style={{ 
-                padding: '0.8rem 1.5rem', 
-                background: 'var(--accent)', 
-                color: '#fff', 
-                border: 'none', 
-                borderRadius: '10px', 
-                fontWeight: 700, 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <PlusCircle size={18} />
-              Create New Plan
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <h1 style={{ margin: 0 }}>Strategic Database</h1>
+              {user?.role === 'admin' && (
+                <span style={{ background: 'rgba(37,99,235,0.1)', color: 'var(--accent)', fontSize: '0.7rem', fontWeight: 800, padding: '0.3rem 0.7rem', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '0.4rem', textTransform: 'uppercase' }}>
+                  <ShieldCheck size={12} /> Admin Mode
+                </span>
+              )}
+              {user?.role !== 'admin' && (
+                <span style={{ background: 'rgba(16,185,129,0.1)', color: 'var(--success)', fontSize: '0.7rem', fontWeight: 800, padding: '0.3rem 0.7rem', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '0.4rem', textTransform: 'uppercase' }}>
+                  <Eye size={12} /> View Mode
+                </span>
+              )}
+            </div>
+            {user?.role === 'admin' && (
+              <button 
+                onClick={handleNewPlan}
+                style={{ padding: '0.8rem 1.5rem', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <PlusCircle size={18} />
+                Create New Plan
+              </button>
+            )}
           </div>
           
           <div style={{ overflowX: 'auto' }}>
