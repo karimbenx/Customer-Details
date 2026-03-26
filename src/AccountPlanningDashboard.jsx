@@ -55,7 +55,11 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
 
   const fetchPlans = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/plans`);
+      const res = await fetch(`${API_BASE_URL}/api/plans`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       const data = await res.json();
       if (Array.isArray(data)) setPastRecords(data);
     } catch (err) {
@@ -65,7 +69,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
 
   useEffect(() => {
     fetchPlans().then(() => setLoading(false));
-  }, []);
+  }, [token]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -273,7 +277,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/save-plan`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(formData)
       });
       const data = await response.json();
@@ -325,7 +332,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     if (!window.confirm('Are you sure you want to delete this strategic record?')) return;
     try {
       const response = await fetch(`${API_BASE_URL}/api/plan/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       if (response.ok) {
         setPastRecords(prev => prev.filter(r => r._id !== id));

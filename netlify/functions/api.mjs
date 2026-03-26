@@ -17,12 +17,30 @@ const router = express.Router();
 // Netlify Neon Zero-Config SQL Driver
 const sql = neon();
 
+const authMiddleware = (req, res, next) => {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    try {
+        req.user = jwt.verify(token, process.env.JWT_SECRET || 'sync-secret');
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+};
+
 // Function: Initialize Neon Table (Self-Healing)
 const initDB = async () => {
     try {
         // Splitting queries for maximum compatibility with serverless drivers
         await sql`CREATE TABLE IF NOT EXISTS account_plans (
             id TEXT PRIMARY KEY,
+            owner_user_id INTEGER,
+            owner_username TEXT,
             company_name TEXT,
             contact_person TEXT,
             email TEXT,
@@ -47,6 +65,8 @@ const initDB = async () => {
         )`;
 
         // Migration: add columns if they don't exist (safe for existing tables)
+        await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS owner_user_id INTEGER`;
+        await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS owner_username TEXT`;
         await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS mobile_2 TEXT`;
         await sql`ALTER TABLE account_plans ADD COLUMN IF NOT EXISTS whatsapp TEXT`;
 
@@ -84,25 +104,42 @@ const initDB = async () => {
 
 // --- API Routes ---
 
-router.post('/save-plan', async (req, res) => {
+router.post('/save-plan', authMiddleware, async (req, res) => {
     try {
         await initDB();
         const { _id, companyName, contactPerson, email, phone, mobile2, whatsapp, industry, review, expectations, goals, xrFocus, landscape, drivers, canSellExtra, opportunities, strategy, stakeholders, plan, actions, riskMitigation } = req.body;
+        const ownerUserId = req.user.id;
+        const ownerUsername = req.user.username;
         const finalId = _id || Date.now().toString();
+
+        if (_id && req.user.role !== 'admin') {
+            const existingPlan = await sql`SELECT owner_user_id FROM account_plans WHERE id = ${_id}`;
+            if (existingPlan.length > 0 && existingPlan[0].owner_user_id !== ownerUserId) {
+                return res.status(403).json({ error: 'You cannot modify another user\'s record' });
+            }
+        }
 
         await sql`
             INSERT INTO account_plans (
-                id, company_name, contact_person, email, phone, mobile_2, whatsapp, industry, review, expectations, goals,
+                id, owner_user_id, owner_username, company_name, contact_person, email, phone, mobile_2, whatsapp, industry, review, expectations, goals,
                 xr_focus, landscape, drivers, can_sell_extra, opportunities, strategy, stakeholders,
                 plan, actions, risk_mitigation, last_updated
             ) VALUES (
-                ${finalId}, ${companyName || ''}, ${contactPerson || ''}, ${email || ''}, ${phone || ''}, ${mobile2 || ''}, ${whatsapp || ''},
+                ${finalId}, ${ownerUserId}, ${ownerUsername}, ${companyName || ''}, ${contactPerson || ''}, ${email || ''}, ${phone || ''}, ${mobile2 || ''}, ${whatsapp || ''},
                 ${industry || ''}, ${review || ''}, ${expectations || ''}, ${goals || ''},
                 ${xrFocus || 'None'}, ${landscape || ''}, ${drivers || ''}, ${canSellExtra || 'Unsure'},
                 ${opportunities || ''}, ${strategy || 'Grow'}, ${stakeholders || ''},
                 ${plan || ''}, ${actions || ''}, ${riskMitigation || ''}, CURRENT_TIMESTAMP
             )
             ON CONFLICT (id) DO UPDATE SET
+                owner_user_id = CASE
+                    WHEN ${req.user.role === 'admin'} THEN account_plans.owner_user_id
+                    ELSE EXCLUDED.owner_user_id
+                END,
+                owner_username = CASE
+                    WHEN ${req.user.role === 'admin'} THEN account_plans.owner_username
+                    ELSE EXCLUDED.owner_username
+                END,
                 company_name = EXCLUDED.company_name, contact_person = EXCLUDED.contact_person,
                 email = EXCLUDED.email, phone = EXCLUDED.phone, mobile_2 = EXCLUDED.mobile_2,
                 whatsapp = EXCLUDED.whatsapp, industry = EXCLUDED.industry, review = EXCLUDED.review,
@@ -120,17 +157,29 @@ router.post('/save-plan', async (req, res) => {
     }
 });
 
-router.get('/plans', async (req, res) => {
+router.get('/plans', authMiddleware, async (req, res) => {
     try {
         await initDB();
-        const records = await sql`
-            SELECT id AS "_id", company_name AS "companyName", contact_person AS "contactPerson", 
-                   email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, xr_focus AS "xrFocus", 
-                   landscape, drivers, can_sell_extra AS "canSellExtra", opportunities, strategy, 
-                   stakeholders, plan, actions, risk_mitigation AS "riskMitigation", last_updated AS "lastUpdated"
-            FROM account_plans 
-            ORDER BY last_updated DESC
-        `;
+        const records = req.user.role === 'admin'
+            ? await sql`
+                SELECT id AS "_id", owner_user_id AS "ownerUserId", owner_username AS "ownerUsername",
+                       company_name AS "companyName", contact_person AS "contactPerson",
+                       email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, xr_focus AS "xrFocus",
+                       landscape, drivers, can_sell_extra AS "canSellExtra", opportunities, strategy,
+                       stakeholders, plan, actions, risk_mitigation AS "riskMitigation", last_updated AS "lastUpdated"
+                FROM account_plans
+                ORDER BY last_updated DESC
+            `
+            : await sql`
+                SELECT id AS "_id", owner_user_id AS "ownerUserId", owner_username AS "ownerUsername",
+                       company_name AS "companyName", contact_person AS "contactPerson",
+                       email, phone, mobile_2 AS "mobile2", whatsapp, industry, review, expectations, goals, xr_focus AS "xrFocus",
+                       landscape, drivers, can_sell_extra AS "canSellExtra", opportunities, strategy,
+                       stakeholders, plan, actions, risk_mitigation AS "riskMitigation", last_updated AS "lastUpdated"
+                FROM account_plans
+                WHERE owner_user_id = ${req.user.id}
+                ORDER BY last_updated DESC
+            `;
         res.json(records);
     } catch (error) {
         console.error('SQL Read Error:', error);
@@ -138,10 +187,17 @@ router.get('/plans', async (req, res) => {
     }
 });
 
-router.delete('/plan/:id', async (req, res) => {
+router.delete('/plan/:id', authMiddleware, async (req, res) => {
     try {
         await initDB();
-        await sql`DELETE FROM account_plans WHERE id = ${req.params.id}`;
+        const result = req.user.role === 'admin'
+            ? await sql`DELETE FROM account_plans WHERE id = ${req.params.id} RETURNING id`
+            : await sql`DELETE FROM account_plans WHERE id = ${req.params.id} AND owner_user_id = ${req.user.id} RETURNING id`;
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Record not found or access denied' });
+        }
+
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Delete failed: ' + error.message });
@@ -192,7 +248,11 @@ router.post('/login', async (req, res) => {
         const valid = await bcrypt.compare(password, users[0].password);
         if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
         
-        const token = jwt.sign({ id: users[0].id, role: users[0].role }, process.env.JWT_SECRET || 'sync-secret', { expiresIn: '1d' });
+        const token = jwt.sign(
+            { id: users[0].id, username: users[0].username, role: users[0].role },
+            process.env.JWT_SECRET || 'sync-secret',
+            { expiresIn: '1d' }
+        );
         res.json({ success: true, user: { username: users[0].username, role: users[0].role }, token });
     } catch (error) {
         console.error('Login Error:', error);
