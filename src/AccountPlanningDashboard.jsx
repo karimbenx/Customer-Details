@@ -499,6 +499,31 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       );
     }
 
+    if (section.id === 'priorities') {
+      return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '1.5rem', rowGap: '1rem' }}>
+          <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+            <label>Focus</label>
+            <select className="select-field" value={formData.xrFocus || ''} onChange={(e) => handleInputChange('xrFocus', e.target.value)}>
+              {(section.fields.find((field) => field.key === 'xrFocus')?.options || []).map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label>Landscape</label>
+            <textarea className="textarea-field textarea-field-half" placeholder="Market challenges..." value={formData.landscape || ''} onChange={(e) => handleInputChange('landscape', e.target.value)} />
+          </div>
+
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label>Drivers</label>
+            <textarea className="textarea-field textarea-field-half" placeholder="What drives decisions?" value={formData.drivers || ''} onChange={(e) => handleInputChange('drivers', e.target.value)} />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div
         style={{
