@@ -940,7 +940,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             <div style={{
               display: 'flex',
               flexWrap: 'wrap',
-              justifyContent: activeSectionId ? 'center' : 'flex-start',
+              justifyContent: 'flex-start',
               gap: activeSectionId ? '0.65rem' : '0.85rem',
               flex: '1 1 0',
               minWidth: 0,
