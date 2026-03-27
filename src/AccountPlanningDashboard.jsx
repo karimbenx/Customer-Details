@@ -961,26 +961,25 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   onClick={() => setActiveSectionId(activeSectionId === s.id ? null : s.id)}
                   className={`accordion-section ${activeSectionId === s.id ? 'active' : ''}`}
                   style={{
-                    padding: activeSectionId ? 'clamp(0.75rem, 1.2vh, 0.9rem) clamp(0.8rem, 1vw, 0.9rem)' : 'clamp(0.9rem, 1.5vh, 1.05rem) clamp(0.9rem, 1.1vw, 1rem)',
+                    padding: activeSectionId ? 'clamp(0.68rem, 1.1vh, 0.82rem) clamp(0.72rem, 0.9vw, 0.82rem)' : 'clamp(0.78rem, 1.3vh, 0.9rem) clamp(0.78rem, 0.95vw, 0.9rem)',
                     display: 'flex',
                     flexDirection: activeSectionId ? 'row' : 'column',
                     alignItems: activeSectionId ? 'center' : 'flex-start',
                     justifyContent: 'center',
-                    gap: activeSectionId ? '0.5rem' : '0.7rem',
+                    gap: activeSectionId ? '0.45rem' : '0.55rem',
                     background: activeSectionId === s.id ? 'var(--accent)' : '#fff',
                     border: activeSectionId === s.id ? 'none' : '1px solid var(--border-light)',
                     color: activeSectionId === s.id ? '#fff' : 'inherit',
                     cursor: 'pointer',
                     borderRadius: '12px',
-                    minHeight: activeSectionId ? 'clamp(60px, 8vh, 70px)' : 'clamp(76px, 10vh, 92px)',
-                    width: activeSectionId ? 'clamp(124px, 12vw, 142px)' : 'clamp(176px, 15vw, 196px)',
+                    minHeight: activeSectionId ? 'clamp(54px, 7vh, 62px)' : 'clamp(62px, 8vh, 72px)',
+                    width: activeSectionId ? 'clamp(112px, 11vw, 128px)' : 'clamp(148px, 12vw, 164px)',
                     maxWidth: '100%'
                   }}
                 >
-                  <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 16 : 22 })}</div>
+                  <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 15 : 18 })}</div>
                   <div style={{ overflow: 'hidden' }}>
-                    <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.74rem' : '0.88rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{sectionDisplayTitles[s.id] || s.title}</h3>
-                    {!activeSectionId && <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.7 }}>{s.subtitle}</p>}
+                    <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.72rem' : '0.83rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{sectionDisplayTitles[s.id] || s.title}</h3>
                   </div>
                 </button>
               ))}
@@ -990,18 +989,18 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 onClick={() => setShowCustomizer(true)}
                 className="accordion-section"
                 style={{
-                  padding: activeSectionId ? 'clamp(0.85rem, 1.4vh, 1rem) clamp(1rem, 1.3vw, 1.15rem)' : 'clamp(1rem, 1.8vh, 1.15rem) clamp(1.15rem, 1.5vw, 1.4rem)',
+                  padding: activeSectionId ? 'clamp(0.72rem, 1.1vh, 0.82rem) clamp(0.82rem, 1vw, 0.92rem)' : 'clamp(0.78rem, 1.3vh, 0.9rem) clamp(0.9rem, 1.1vw, 1rem)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.6rem',
+                  gap: '0.5rem',
                   background: '#fff',
                   border: '1px solid var(--border-light)',
                   color: 'var(--text-primary)',
                   cursor: 'pointer',
                   borderRadius: '12px',
-                  minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
-                  minWidth: activeSectionId ? 'clamp(160px, 14vw, 185px)' : 'clamp(190px, 15vw, 220px)',
+                  minHeight: activeSectionId ? 'clamp(54px, 7vh, 62px)' : 'clamp(62px, 8vh, 72px)',
+                  minWidth: activeSectionId ? 'clamp(142px, 12vw, 156px)' : 'clamp(164px, 13vw, 178px)',
                   flex: '0 0 auto',
                   maxWidth: '100%',
                   boxShadow: 'var(--shadow-sm)',
@@ -1009,10 +1008,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 }}
               >
                 <div style={{ flexShrink: 0 }}>
-                  {React.cloneElement(<ClipboardCheck />, { size: activeSectionId ? 16 : 20 })}
+                  {React.cloneElement(<ClipboardCheck />, { size: activeSectionId ? 15 : 18 })}
                 </div>
                 <div style={{ overflow: 'hidden' }}>
-                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.92rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                  <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.72rem' : '0.83rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                     Customize Form
                   </h3>
                 </div>
