@@ -98,12 +98,12 @@ const sectionIcons = {
 };
 
 const sectionDisplayTitles = {
-  customerDetails: 'Cust',
-  accountPotential: 'Acct',
-  priorities: 'Prior',
-  opportunity: 'Opps',
-  relationship: 'Rel',
-  action: 'Act'
+  customerDetails: 'Overview',
+  accountPotential: 'Potential',
+  priorities: 'Priorities',
+  opportunity: 'Opportunities',
+  relationship: 'Relations',
+  action: 'Action'
 };
 
 const normalizeField = (field, defaultField) => {
@@ -961,25 +961,25 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                   onClick={() => setActiveSectionId(activeSectionId === s.id ? null : s.id)}
                   className={`accordion-section ${activeSectionId === s.id ? 'active' : ''}`}
                   style={{
-                    padding: activeSectionId ? 'clamp(0.85rem, 1.4vh, 1rem) clamp(0.9rem, 1.2vw, 1rem)' : 'clamp(1rem, 1.8vh, 1.25rem) clamp(1.05rem, 1.4vw, 1.35rem)',
+                    padding: activeSectionId ? 'clamp(0.75rem, 1.2vh, 0.9rem) clamp(0.8rem, 1vw, 0.9rem)' : 'clamp(0.9rem, 1.5vh, 1.05rem) clamp(0.9rem, 1.1vw, 1rem)',
                     display: 'flex',
                     flexDirection: activeSectionId ? 'row' : 'column',
                     alignItems: activeSectionId ? 'center' : 'flex-start',
                     justifyContent: 'center',
-                    gap: activeSectionId ? '0.6rem' : '0.85rem',
+                    gap: activeSectionId ? '0.5rem' : '0.7rem',
                     background: activeSectionId === s.id ? 'var(--accent)' : '#fff',
                     border: activeSectionId === s.id ? 'none' : '1px solid var(--border-light)',
                     color: activeSectionId === s.id ? '#fff' : 'inherit',
                     cursor: 'pointer',
                     borderRadius: '12px',
-                    minHeight: activeSectionId ? 'clamp(68px, 9vh, 78px)' : 'clamp(84px, 12vh, 108px)',
-                    width: activeSectionId ? 'clamp(138px, 14vw, 162px)' : 'clamp(210px, 18vw, 240px)',
+                    minHeight: activeSectionId ? 'clamp(60px, 8vh, 70px)' : 'clamp(76px, 10vh, 92px)',
+                    width: activeSectionId ? 'clamp(124px, 12vw, 142px)' : 'clamp(176px, 15vw, 196px)',
                     maxWidth: '100%'
                   }}
                 >
                   <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 16 : 22 })}</div>
                   <div style={{ overflow: 'hidden' }}>
-                    <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{sectionDisplayTitles[s.id] || s.title}</h3>
+                    <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.74rem' : '0.88rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{sectionDisplayTitles[s.id] || s.title}</h3>
                     {!activeSectionId && <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.7 }}>{s.subtitle}</p>}
                   </div>
                 </button>
