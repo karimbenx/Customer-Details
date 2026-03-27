@@ -486,29 +486,39 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           </div>
 
           {additionalContacts.map((contact, index) => (
-            <React.Fragment key={`additional-contact-${index}`}>
-              <div className="form-group">
+            <div
+              key={`additional-contact-${index}`}
+              style={{
+                gridColumn: '1 / -1',
+                display: 'grid',
+                gridTemplateColumns: '1.15fr 1fr 1.15fr 1fr auto',
+                columnGap: '1rem',
+                alignItems: 'end'
+              }}
+            >
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>{`Contact ${index + 2}`}</label>
                 <input className="input-field" type="text" placeholder="Full name" value={contact.name} onChange={(e) => updateAdditionalContact(index, 'name', e.target.value)} />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>{`Phone ${index + 2}`}</label>
                 <input className="input-field" type="text" placeholder="+1 555-0000" value={contact.phone} onChange={(e) => updateAdditionalContact(index, 'phone', e.target.value)} />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>{`Email ${index + 2}`}</label>
                 <input className="input-field" type="email" placeholder="email@company.com" value={contact.email} onChange={(e) => updateAdditionalContact(index, 'email', e.target.value)} />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>{`WhatsApp ${index + 2}`}</label>
-                <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center' }}>
-                  <input className="input-field" type="text" placeholder="WhatsApp number" value={contact.whatsapp} onChange={(e) => updateAdditionalContact(index, 'whatsapp', e.target.value)} />
-                  <button type="button" className="inline-remove-button" onClick={() => removeAdditionalContact(index)}>
-                    Remove
-                  </button>
-                </div>
+                <input className="input-field" type="text" placeholder="WhatsApp number" value={contact.whatsapp} onChange={(e) => updateAdditionalContact(index, 'whatsapp', e.target.value)} />
               </div>
-            </React.Fragment>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ opacity: 0 }}>Remove</label>
+                <button type="button" className="inline-remove-button" onClick={() => removeAdditionalContact(index)}>
+                  Remove
+                </button>
+              </div>
+            </div>
           ))}
 
           <div className="form-group">
