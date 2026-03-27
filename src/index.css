@@ -79,12 +79,17 @@ html, body {
 }
 
 .brand-logo-header {
-  height: 48px;
+  height: 56px;
+  transform: translateZ(0) scale(1.85);
+  transform-origin: left center;
+  margin-right: 1.4rem;
 }
 
 .brand-logo-auth {
   height: 58px;
   display: inline-block;
+  transform: translateZ(0) scale(1.15);
+  transform-origin: center center;
 }
 
 .grid-layout {

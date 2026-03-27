@@ -298,7 +298,7 @@ const App = () => {
         zIndex: 100,
         boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.4rem', flexWrap: 'wrap' }}>
           <div style={{ 
             display: 'flex',
             alignItems: 'center',
