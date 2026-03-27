@@ -98,12 +98,12 @@ const sectionIcons = {
 };
 
 const sectionDisplayTitles = {
-  customerDetails: 'Overview',
-  accountPotential: 'Potential',
-  priorities: 'Priorities',
-  opportunity: 'Opportunities',
-  relationship: 'Relations',
-  action: 'Action'
+  customerDetails: 'Cust',
+  accountPotential: 'Acct',
+  priorities: 'Prior',
+  opportunity: 'Opps',
+  relationship: 'Rel',
+  action: 'Act'
 };
 
 const normalizeField = (field, defaultField) => {
