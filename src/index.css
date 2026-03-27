@@ -278,7 +278,7 @@ html, body {
 }
 
 .textarea-field {
-  min-height: 120px;
+  min-height: 96px;
   resize: vertical;
 }
 
