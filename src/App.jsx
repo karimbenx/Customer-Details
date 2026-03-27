@@ -304,7 +304,7 @@ const App = () => {
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-            <img src="/Logo.svg" alt="ClientSync" style={{ height: '38px', width: 'auto', display: 'block' }} />
+            <img src="/Logo.svg" alt="ClientSync" className="brand-logo brand-logo-header" />
           </div>
 
           <nav style={{ display: 'flex', height: '72px' }}>

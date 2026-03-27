@@ -70,6 +70,23 @@ html, body {
   box-shadow: var(--shadow-lg);
 }
 
+.brand-logo {
+  width: auto;
+  display: block;
+  object-fit: contain;
+  filter: saturate(0.72) contrast(0.94) brightness(0.97);
+  transform: translateZ(0);
+}
+
+.brand-logo-header {
+  height: 48px;
+}
+
+.brand-logo-auth {
+  height: 58px;
+  display: inline-block;
+}
+
 .grid-layout {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

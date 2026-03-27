@@ -78,7 +78,7 @@ const Auth = ({ onLogin, initialError = '' }) => {
         style={{ width: '100%', maxWidth: '520px', padding: '1.9rem 2rem' }}
       >
         <div style={{ textAlign: 'center', marginBottom: '1.4rem' }}>
-          <img src="/Logo.svg" alt="ClientSync" style={{ height: '46px', width: 'auto', display: 'inline-block' }} />
+          <img src="/Logo.svg" alt="ClientSync" className="brand-logo brand-logo-auth" />
         </div>
 
         <div
