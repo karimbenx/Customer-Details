@@ -30,7 +30,7 @@ const DEFAULT_FORM_CONFIG = [
     fields: [
       { key: 'companyName', label: 'Company Name', type: 'text', placeholder: 'Acme Corp', width: 'half' },
       { key: 'industry', label: 'Industry', type: 'text', placeholder: 'e.g. Technology', width: 'half' },
-      { key: 'contactPerson', label: 'Contact Person', type: 'text', placeholder: 'Full name of contact', width: 'full' },
+      { key: 'contactPerson', label: 'Contact', type: 'text', placeholder: 'Full name', width: 'half' },
       { key: 'email', label: 'Email Address', type: 'email', placeholder: 'email@company.com', width: 'half' },
       { key: 'whatsapp', label: 'WhatsApp Number', type: 'text', placeholder: 'WhatsApp number', width: 'half' },
       { key: 'phone', label: 'Phone (Primary)', type: 'text', placeholder: '+1 555-0123', width: 'half' },
@@ -44,7 +44,7 @@ const DEFAULT_FORM_CONFIG = [
     fields: [
       { key: 'review', label: 'History', type: 'textarea', placeholder: 'Recent history...', width: 'half' },
       { key: 'expectations', label: 'Needs', type: 'textarea', placeholder: 'Customer needs...', width: 'half' },
-      { key: 'goals', label: 'Goals', type: 'textarea', placeholder: 'Top goals...', width: 'full' },
+      { key: 'goals', label: 'Goals', type: 'textarea', placeholder: 'Top goals...', width: 'half' },
       { key: 'proposal', label: 'Proposal', type: 'number', placeholder: 'Proposal amount', width: 'half' },
       { key: 'revisedProposal', label: 'Revised', type: 'number', placeholder: 'Revised amount', width: 'half' }
     ]
@@ -54,9 +54,9 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Customer Priorities',
     subtitle: 'Drivers and tech focus',
     fields: [
-      { key: 'xrFocus', label: 'Primary Focus', type: 'select', width: 'full', options: ['None', 'AR', 'VR', 'MR', 'AI', 'Experience Centre'] },
-      { key: 'landscape', label: 'Business Landscape', type: 'textarea', placeholder: 'Current market challenges...', width: 'half' },
-      { key: 'drivers', label: 'Key Business Drivers', type: 'textarea', placeholder: 'What drives their decisions?', width: 'half' }
+      { key: 'xrFocus', label: 'Focus', type: 'select', width: 'half', options: ['None', 'AR', 'VR', 'MR', 'AI', 'Experience Centre'] },
+      { key: 'landscape', label: 'Landscape', type: 'textarea', placeholder: 'Market challenges...', width: 'half' },
+      { key: 'drivers', label: 'Drivers', type: 'textarea', placeholder: 'What drives decisions?', width: 'half' }
     ]
   },
   {
@@ -64,9 +64,9 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Opportunities',
     subtitle: 'Sales and strategy',
     fields: [
-      { key: 'canSellExtra', label: 'Upsell Potential', type: 'select', width: 'full', options: ['Unsure', 'Definitely', 'Maybe', 'Unlikely'] },
-      { key: 'opportunities', label: 'Specific Opportunities', type: 'textarea', placeholder: 'Detail specific growth paths...', width: 'full' },
-      { key: 'strategy', label: 'Primary Strategy', type: 'radio', width: 'full', options: ['Protect', 'Grow'], descriptions: { Protect: 'Defend existing accounts and maintain satisfaction.', Grow: 'Expand footprint and increase account value.' } }
+      { key: 'canSellExtra', label: 'Upsell', type: 'select', width: 'half', options: ['Unsure', 'Definitely', 'Maybe', 'Unlikely'] },
+      { key: 'opportunities', label: 'Opportunities', type: 'textarea', placeholder: 'Growth paths...', width: 'half' },
+      { key: 'strategy', label: 'Strategy', type: 'radio', width: 'half', options: ['Protect', 'Grow'], descriptions: { Protect: 'Defend existing accounts and maintain satisfaction.', Grow: 'Expand footprint and increase account value.' } }
     ]
   },
   {
@@ -103,11 +103,66 @@ const normalizeField = (field, defaultField) => {
   if (merged.key === 'xrFocus') {
     return {
       ...merged,
-      label: 'Primary Focus',
+      label: 'Focus',
+      width: 'half',
       options: Array.from(new Set([...(merged.options || []), 'Experience Centre']))
     };
   }
-  if (['review', 'expectations', 'landscape', 'drivers', 'stakeholders', 'plan', 'actions', 'riskMitigation'].includes(merged.key)) {
+  if (merged.key === 'contactPerson') {
+    return {
+      ...merged,
+      label: 'Contact',
+      placeholder: 'Full name',
+      width: 'half'
+    };
+  }
+  if (merged.key === 'goals') {
+    return {
+      ...merged,
+      label: 'Goals',
+      placeholder: 'Top goals...',
+      width: 'half'
+    };
+  }
+  if (merged.key === 'landscape') {
+    return {
+      ...merged,
+      label: 'Landscape',
+      placeholder: 'Market challenges...',
+      width: 'half'
+    };
+  }
+  if (merged.key === 'drivers') {
+    return {
+      ...merged,
+      label: 'Drivers',
+      placeholder: 'What drives decisions?',
+      width: 'half'
+    };
+  }
+  if (merged.key === 'canSellExtra') {
+    return {
+      ...merged,
+      label: 'Upsell',
+      width: 'half'
+    };
+  }
+  if (merged.key === 'opportunities') {
+    return {
+      ...merged,
+      label: 'Opportunities',
+      placeholder: 'Growth paths...',
+      width: 'half'
+    };
+  }
+  if (merged.key === 'strategy') {
+    return {
+      ...merged,
+      label: 'Strategy',
+      width: 'half'
+    };
+  }
+  if (['review', 'expectations', 'stakeholders', 'plan', 'actions', 'riskMitigation'].includes(merged.key)) {
     return {
       ...merged,
       width: 'half'
