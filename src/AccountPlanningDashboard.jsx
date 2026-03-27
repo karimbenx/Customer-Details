@@ -1152,7 +1152,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       )}
       <AnimatePresence>
         {showCustomizer && user?.role === 'admin' && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.5)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="glass-card" style={{ width: 'min(1120px, 100%)', maxHeight: '88vh', overflowY: 'auto', padding: 0 }}>
               <div style={{ position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.4rem 1.5rem', borderBottom: '1px solid var(--border-light)', background: '#fff', borderTopLeftRadius: '1.25rem', borderTopRightRadius: '1.25rem' }}>
                 <div>
