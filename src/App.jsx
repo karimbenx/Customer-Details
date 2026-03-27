@@ -262,24 +262,6 @@ const App = () => {
     return () => window.clearInterval(intervalId);
   }, [clearSession, token, user]);
 
-  React.useEffect(() => {
-    if (!token) return undefined;
-
-    const releaseServerSession = () => {
-      notifyServerLogout(token, true).catch(() => {
-        // Ignore unload-time network failures.
-      });
-    };
-
-    window.addEventListener('pagehide', releaseServerSession);
-    window.addEventListener('beforeunload', releaseServerSession);
-
-    return () => {
-      window.removeEventListener('pagehide', releaseServerSession);
-      window.removeEventListener('beforeunload', releaseServerSession);
-    };
-  }, [notifyServerLogout, token]);
-
   if (!isSessionReady) return <div className="loader">Restoring session...</div>;
 
   if (!user) return <Auth onLogin={handleLogin} initialError={authMessage} />;
