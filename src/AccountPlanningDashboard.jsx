@@ -657,6 +657,22 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     setFormData((prev) => ({ ...buildEmptyFormData(nextConfig, prev), [nextField.key]: '' }));
   };
 
+  const removeSection = (sectionId) => {
+    const targetSection = formConfig.find((section) => section.id === sectionId);
+    if (!targetSection) return;
+    if (!window.confirm(`Delete "${targetSection.title}" card?`)) return;
+
+    const nextConfig = formConfig.filter((section) => section.id !== sectionId);
+    setFormConfig(nextConfig);
+    setFormData((prev) => {
+      const nextData = { ...prev };
+      targetSection.fields.forEach((field) => {
+        delete nextData[field.key];
+      });
+      return buildEmptyFormData(nextConfig, nextData);
+    });
+  };
+
   const handleConfigSave = async () => {
     setIsSavingConfig(true);
     setConfigError('');
@@ -1165,7 +1181,12 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                         <input className="input-field" value={section.subtitle} onChange={(e) => updateSectionMeta(section.id, 'subtitle', e.target.value)} />
                       </div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', marginBottom: '0.5rem' }}>
+                      {section.id.startsWith('customSection') && (
+                        <button onClick={() => removeSection(section.id)} style={{ padding: '0.55rem 0.85rem', background: 'rgba(239,68,68,0.08)', color: 'var(--danger)', border: 'none', borderRadius: '9px', fontWeight: 700, cursor: 'pointer' }}>
+                          Delete Card
+                        </button>
+                      )}
                       <button onClick={() => addFieldToSection(section.id)} style={{ padding: '0.55rem 0.85rem', background: 'var(--bg-home)', border: 'none', borderRadius: '9px', fontWeight: 700, cursor: 'pointer' }}>
                         Add Field
                       </button>
