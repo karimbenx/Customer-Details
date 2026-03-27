@@ -79,10 +79,10 @@ html, body {
 }
 
 .brand-logo-header {
-  height: 56px;
-  transform: translateZ(0) scale(1.85);
+  height: 50px;
+  transform: translateZ(0) scale(1.32);
   transform-origin: left center;
-  margin-right: 1.4rem;
+  margin-right: 0.35rem;
 }
 
 .brand-logo-auth {

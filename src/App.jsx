@@ -288,44 +288,46 @@ const App = () => {
     <div className="app-wrapper">
       {/* Professional Header - Fixed */}
       <header style={{ 
-        height: '72px',
+        height: '84px',
         background: '#fff', 
         borderBottom: '1px solid var(--border-light)',
         display: 'flex',
         alignItems: 'center',
-        padding: '0 2rem',
+        padding: '0 1.75rem 0 1.5rem',
         justifyContent: 'space-between',
         zIndex: 100,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+        boxShadow: '0 1px 0 rgba(148, 163, 184, 0.12)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.4rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.1rem', flexWrap: 'nowrap', minWidth: 0 }}>
           <div style={{ 
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            height: '84px',
+            paddingRight: '0.35rem'
           }}>
             <img src="/Logo.svg" alt="ClientSync" className="brand-logo brand-logo-header" />
           </div>
 
-          <nav style={{ display: 'flex', height: '72px' }}>
+          <nav style={{ display: 'flex', height: '84px' }}>
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 style={{
-                  padding: '0 1.5rem',
+                  padding: '0 1.2rem',
                   height: '100%',
                   background: 'none',
                   border: 'none',
                   borderBottom: activeTab === item.id ? '3px solid var(--accent)' : '3px solid transparent',
                   color: activeTab === item.id ? 'var(--accent)' : 'var(--text-secondary)',
-                  fontSize: '0.95rem',
+                  fontSize: '0.92rem',
                   fontWeight: activeTab === item.id ? 800 : 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.6rem'
+                  gap: '0.55rem',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 <div style={{ opacity: activeTab === item.id ? 1 : 0.7 }}>
