@@ -241,7 +241,8 @@ const ensureAdditionalContacts = (value) => (
     ? value.map((entry) => ({
         name: entry?.name || '',
         phone: entry?.phone || '',
-        email: entry?.email || ''
+        email: entry?.email || '',
+        whatsapp: entry?.whatsapp || ''
       }))
     : []
 );
@@ -367,7 +368,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const addAdditionalContact = () => {
     setFormData((prev) => ({
       ...prev,
-      additionalContacts: [...ensureAdditionalContacts(prev.additionalContacts), { name: '', phone: '', email: '' }]
+      additionalContacts: [...ensureAdditionalContacts(prev.additionalContacts), { name: '', phone: '', email: '', whatsapp: '' }]
     }));
   };
 
@@ -496,8 +497,12 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
               </div>
               <div className="form-group">
                 <label>{`Email ${index + 2}`}</label>
+                <input className="input-field" type="email" placeholder="email@company.com" value={contact.email} onChange={(e) => updateAdditionalContact(index, 'email', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>{`WhatsApp ${index + 2}`}</label>
                 <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center' }}>
-                  <input className="input-field" type="email" placeholder="email@company.com" value={contact.email} onChange={(e) => updateAdditionalContact(index, 'email', e.target.value)} />
+                  <input className="input-field" type="text" placeholder="WhatsApp number" value={contact.whatsapp} onChange={(e) => updateAdditionalContact(index, 'whatsapp', e.target.value)} />
                   <button type="button" className="inline-remove-button" onClick={() => removeAdditionalContact(index)}>
                     Remove
                   </button>
