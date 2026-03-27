@@ -454,7 +454,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const renderSectionContent = (section) => {
     if (section.id === 'customerDetails') {
       return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', columnGap: '1.1rem', rowGap: '1rem' }}>
+        <div className="customer-details-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', columnGap: '1.1rem', rowGap: '1rem' }}>
           <div className="form-group">
             <label>Company Name</label>
             <input className="input-field" type="text" placeholder="Acme Corp" value={formData.companyName || ''} onChange={(e) => handleInputChange('companyName', e.target.value)} />
@@ -493,6 +493,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           {additionalContacts.map((contact, index) => (
             <div
               key={`additional-contact-${index}`}
+              className="additional-contact-row"
               style={{
                 gridColumn: '1 / -1',
                 display: 'grid',
@@ -968,7 +969,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             marginBottom: 'clamp(0.8rem, 1.8vh, 1.25rem)',
             transition: 'all 0.3s ease'
           }}>
-            <div style={{
+            <div className="section-tabs" style={{
               display: 'flex',
               flexWrap: 'wrap',
               justifyContent: 'flex-start',
@@ -981,7 +982,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 <button
                   key={s.id}
                   onClick={() => setActiveSectionId(activeSectionId === s.id ? null : s.id)}
-                  className={`accordion-section ${activeSectionId === s.id ? 'active' : ''}`}
+                  className={`accordion-section section-tab-button ${activeSectionId === s.id ? 'active' : ''}`}
                   style={{
                     padding: activeSectionId ? 'clamp(0.68rem, 1.1vh, 0.82rem) clamp(0.72rem, 0.9vw, 0.82rem)' : 'clamp(0.78rem, 1.3vh, 0.9rem) clamp(0.78rem, 0.95vw, 0.9rem)',
                     display: 'flex',
@@ -1009,7 +1010,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             {user?.role === 'admin' && (
               <button
                 onClick={() => setShowCustomizer(true)}
-                className="accordion-section"
+                className="accordion-section section-tab-button section-tab-customize"
                 style={{
                   padding: activeSectionId ? 'clamp(0.72rem, 1.1vh, 0.82rem) clamp(0.82rem, 1vw, 0.92rem)' : 'clamp(0.78rem, 1.3vh, 0.9rem) clamp(0.9rem, 1.1vw, 1rem)',
                   display: 'flex',

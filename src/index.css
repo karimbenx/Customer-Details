@@ -504,6 +504,12 @@ html, body {
 
   .app-wrapper { height: auto; min-height: 100vh; }
 
+  .brand-logo-header {
+    height: 36px;
+    transform: translateZ(0) scale(1);
+    margin-right: 0;
+  }
+
   /* Header */
   header {
     height: auto !important;
@@ -559,6 +565,43 @@ html, body {
 
   .dashboard-form-scroll {
     max-height: none;
+  }
+
+  .section-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem !important;
+    max-width: 100% !important;
+  }
+
+  .section-tab-button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 64px !important;
+    padding: 0.8rem !important;
+    gap: 0.45rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .section-tab-button h3 {
+    font-size: 0.82rem !important;
+  }
+
+  .section-tab-customize {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .customer-details-grid {
+    grid-template-columns: 1fr !important;
+    column-gap: 0 !important;
+    row-gap: 0.85rem !important;
+  }
+
+  .additional-contact-row {
+    grid-template-columns: 1fr !important;
+    column-gap: 0 !important;
+    row-gap: 0.75rem !important;
   }
 
   /* Forms: stack 2-column grids to 1 column on mobile */
