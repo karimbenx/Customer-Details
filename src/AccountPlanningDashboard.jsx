@@ -454,7 +454,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const renderSectionContent = (section) => {
     if (section.id === 'customerDetails') {
       return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', columnGap: '1.25rem', rowGap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', columnGap: '1.1rem', rowGap: '1rem' }}>
           <div className="form-group">
             <label>Company Name</label>
             <input className="input-field" type="text" placeholder="Acme Corp" value={formData.companyName || ''} onChange={(e) => handleInputChange('companyName', e.target.value)} />
@@ -463,6 +463,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             <label>Industry</label>
             <input className="input-field" type="text" placeholder="e.g. Technology" value={formData.industry || ''} onChange={(e) => handleInputChange('industry', e.target.value)} />
           </div>
+          <div />
           <div />
 
           <div className="form-group">
@@ -476,6 +477,10 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           <div className="form-group">
             <label>Email Address</label>
             <input className="input-field" type="email" placeholder="email@company.com" value={formData.email || ''} onChange={(e) => handleInputChange('email', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>WhatsApp Number</label>
+            <input className="input-field" type="text" placeholder="WhatsApp number" value={formData.whatsapp || ''} onChange={(e) => handleInputChange('whatsapp', e.target.value)} />
           </div>
 
           <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '-0.15rem' }}>
@@ -521,10 +526,6 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             </div>
           ))}
 
-          <div className="form-group">
-            <label>WhatsApp Number</label>
-            <input className="input-field" type="text" placeholder="WhatsApp number" value={formData.whatsapp || ''} onChange={(e) => handleInputChange('whatsapp', e.target.value)} />
-          </div>
         </div>
       );
     }
