@@ -502,7 +502,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     if (section.id === 'priorities') {
       return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '1.5rem', rowGap: '1rem' }}>
-          <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label>Focus</label>
             <select className="select-field" value={formData.xrFocus || ''} onChange={(e) => handleInputChange('xrFocus', e.target.value)}>
               {(section.fields.find((field) => field.key === 'xrFocus')?.options || []).map((option) => (
@@ -516,9 +516,49 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             <textarea className="textarea-field textarea-field-half" placeholder="Market challenges..." value={formData.landscape || ''} onChange={(e) => handleInputChange('landscape', e.target.value)} />
           </div>
 
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
             <label>Drivers</label>
-            <textarea className="textarea-field textarea-field-half" placeholder="What drives decisions?" value={formData.drivers || ''} onChange={(e) => handleInputChange('drivers', e.target.value)} />
+            <textarea className="textarea-field textarea-field-full" placeholder="What drives decisions?" value={formData.drivers || ''} onChange={(e) => handleInputChange('drivers', e.target.value)} />
+          </div>
+        </div>
+      );
+    }
+
+    if (section.id === 'opportunity') {
+      const selectedValue = formData.strategy || section.fields.find((field) => field.key === 'strategy')?.options?.[0] || '';
+      const strategyField = section.fields.find((field) => field.key === 'strategy');
+
+      return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '1.5rem', rowGap: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label>Upsell</label>
+            <select className="select-field" value={formData.canSellExtra || ''} onChange={(e) => handleInputChange('canSellExtra', e.target.value)}>
+              {(section.fields.find((field) => field.key === 'canSellExtra')?.options || []).map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label>Opportunities</label>
+            <textarea className="textarea-field textarea-field-half" placeholder="Growth paths..." value={formData.opportunities || ''} onChange={(e) => handleInputChange('opportunities', e.target.value)} />
+          </div>
+
+          <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+            <label>Strategy</label>
+            <div style={{ display: 'flex', gap: '1.5rem', padding: '0.35rem 0 0.1rem', flexWrap: 'wrap' }}>
+              {(strategyField?.options || []).map((option) => (
+                <div key={option}>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    <input type="radio" style={{ width: '18px', height: '18px' }} checked={selectedValue === option} onChange={() => handleInputChange('strategy', option)} />
+                    {option}
+                  </label>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: '0.75rem', padding: '0.9rem 1rem', borderRadius: '12px', background: 'var(--bg-home)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', fontSize: '0.86rem', fontWeight: 600, lineHeight: 1.5 }}>
+              {strategyField?.descriptions?.[selectedValue] || ''}
+            </div>
           </div>
         </div>
       );
