@@ -1,14 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { 
   Users, 
-  Zap, 
-  LayoutDashboard, 
   BarChart3, 
-  Settings, 
   LogOut,
-  Bell,
-  Search,
-  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AccountPlanningDashboard from './AccountPlanningDashboard';
@@ -306,18 +300,11 @@ const App = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '3rem', flexWrap: 'wrap' }}>
           <div style={{ 
-            fontWeight: 900, 
-            fontSize: '1.4rem', 
-            color: 'var(--primary)', 
-            letterSpacing: '-0.04em',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-            <div style={{ width: '32px', height: '32px', background: 'var(--accent)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Zap size={18} color="#fff" fill="#fff" />
-            </div>
-            <span>CLIENT<span style={{ color: 'var(--accent)' }}>SYNC</span></span>
+            <img src="/Logo.svg" alt="ClientSync" style={{ height: '38px', width: 'auto', display: 'block' }} />
           </div>
 
           <nav style={{ display: 'flex', height: '72px' }}>

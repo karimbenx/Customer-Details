@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
@@ -78,22 +78,7 @@ const Auth = ({ onLogin, initialError = '' }) => {
         style={{ width: '100%', maxWidth: '520px', padding: '1.9rem 2rem' }}
       >
         <div style={{ textAlign: 'center', marginBottom: '1.4rem' }}>
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              background: 'var(--accent)',
-              borderRadius: '10px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '0.6rem',
-              boxShadow: '0 8px 16px var(--accent-glow)'
-            }}
-          >
-            <Zap size={20} color="#fff" fill="#fff" />
-          </div>
-          <h1 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 900 }}>ClientSync</h1>
+          <img src="/Logo.svg" alt="ClientSync" style={{ height: '46px', width: 'auto', display: 'inline-block' }} />
         </div>
 
         <div
