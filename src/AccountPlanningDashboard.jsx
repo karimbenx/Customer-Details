@@ -320,7 +320,12 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
 
     if (field.type === 'textarea') {
       return (
-        <textarea className="textarea-field" placeholder={field.placeholder || ''} value={formData[field.key] || ''} onChange={(e) => handleInputChange(field.key, e.target.value)} />
+        <textarea
+          className={`textarea-field ${field.width === 'half' ? 'textarea-field-half' : 'textarea-field-full'}`}
+          placeholder={field.placeholder || ''}
+          value={formData[field.key] || ''}
+          onChange={(e) => handleInputChange(field.key, e.target.value)}
+        />
       );
     }
 
@@ -330,7 +335,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   };
 
   const renderSectionContent = (section) => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '1.5rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '1.5rem', rowGap: '1rem' }}>
       {section.fields.map((field) => (
         <div key={field.key} className="form-group" style={{ gridColumn: field.width === 'half' ? 'span 1' : '1 / -1' }}>
           <label>{field.label}</label>
