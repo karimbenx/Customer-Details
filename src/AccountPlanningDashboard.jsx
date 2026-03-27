@@ -286,7 +286,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     icon: sectionIcons[section.id] || <Briefcase />
   }));
 
-  const renderField = (field) => {
+  const renderField = (field, section) => {
     if (field.type === 'select') {
       return (
         <select className="select-field" value={formData[field.key] || ''} onChange={(e) => handleInputChange(field.key, e.target.value)}>
@@ -319,9 +319,17 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     }
 
     if (field.type === 'textarea') {
+      const textareaSizeClass = section?.id === 'accountPotential'
+        ? field.width === 'half'
+          ? 'textarea-field-account-half'
+          : 'textarea-field-account-full'
+        : field.width === 'half'
+          ? 'textarea-field-half'
+          : 'textarea-field-full';
+
       return (
         <textarea
-          className={`textarea-field ${field.width === 'half' ? 'textarea-field-half' : 'textarea-field-full'}`}
+          className={`textarea-field ${textareaSizeClass}`}
           placeholder={field.placeholder || ''}
           value={formData[field.key] || ''}
           onChange={(e) => handleInputChange(field.key, e.target.value)}
@@ -339,7 +347,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       {section.fields.map((field) => (
         <div key={field.key} className="form-group" style={{ gridColumn: field.width === 'half' ? 'span 1' : '1 / -1' }}>
           <label>{field.label}</label>
-          {renderField(field)}
+          {renderField(field, section)}
         </div>
       ))}
     </div>

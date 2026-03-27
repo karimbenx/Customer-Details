@@ -291,6 +291,14 @@ html, body {
   min-height: 84px;
 }
 
+.textarea-field-account-half {
+  min-height: 76px;
+}
+
+.textarea-field-account-full {
+  min-height: 72px;
+}
+
 /* Table Styles */
 .pro-table {
   width: 100%;
