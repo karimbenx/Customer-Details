@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { neon } from '@netlify/neon';
+import postgres from 'postgres';
 import { randomUUID } from 'crypto';
 
 dotenv.config();
@@ -15,8 +15,8 @@ app.use(express.json());
 
 const router = express.Router();
 
-// Netlify Neon Zero-Config SQL Driver
-const sql = neon();
+// Standard Postgres connection for Netlify Functions
+const sql = postgres(process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL, { ssl: 'require' });
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 const SESSION_ACTIVITY_TIMEOUT_MS = 8 * 1000;
 const DEFAULT_FORM_CONFIG = [
