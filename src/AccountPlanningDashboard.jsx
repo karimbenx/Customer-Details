@@ -25,7 +25,7 @@ const EDIT_DRAFT_STORAGE_KEY = 'clientsync-edit-draft';
 const DEFAULT_FORM_CONFIG = [
   {
     id: 'customerDetails',
-    title: 'Customer Overview',
+    title: 'Overview',
     subtitle: 'Primary contact and profile',
     fields: [
       { key: 'companyName', label: 'Company Name', type: 'text', placeholder: 'Acme Corp', width: 'half' },
@@ -38,7 +38,7 @@ const DEFAULT_FORM_CONFIG = [
   },
   {
     id: 'accountPotential',
-    title: 'Account Potential',
+    title: 'Potential',
     subtitle: 'History and strategic goals',
     fields: [
       { key: 'review', label: 'History', type: 'textarea', placeholder: 'Recent history...', width: 'half' },
@@ -50,7 +50,7 @@ const DEFAULT_FORM_CONFIG = [
   },
   {
     id: 'priorities',
-    title: 'Customer Priorities',
+    title: 'Priorities',
     subtitle: 'Drivers and tech focus',
     fields: [
       { key: 'xrFocus', label: 'Focus', type: 'select', width: 'half', options: ['None', 'AR', 'VR', 'MR', 'AI', 'Experience Centre'] },
@@ -70,7 +70,7 @@ const DEFAULT_FORM_CONFIG = [
   },
   {
     id: 'relationship',
-    title: 'Relationships',
+    title: 'Relations',
     subtitle: 'Stakeholders and mapping',
     fields: [
       { key: 'stakeholders', label: 'Key Executives & Stakeholders', type: 'textarea', placeholder: 'List influential points of contact...', width: 'half' },
@@ -79,7 +79,7 @@ const DEFAULT_FORM_CONFIG = [
   },
   {
     id: 'action',
-    title: 'Action Plan',
+    title: 'Action',
     subtitle: 'Critical actions and risk',
     fields: [
       { key: 'actions', label: 'Critical Actions', type: 'textarea', placeholder: 'Immediate steps required...', width: 'half' },
@@ -95,6 +95,15 @@ const sectionIcons = {
   opportunity: <Lightbulb />,
   relationship: <Users />,
   action: <ClipboardCheck />
+};
+
+const sectionDisplayTitles = {
+  customerDetails: 'Overview',
+  accountPotential: 'Potential',
+  priorities: 'Priorities',
+  opportunity: 'Opportunities',
+  relationship: 'Relations',
+  action: 'Action'
 };
 
 const normalizeField = (field, defaultField) => {
@@ -970,7 +979,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                 >
                   <div style={{ flexShrink: 0 }}>{React.cloneElement(s.icon, { size: activeSectionId ? 16 : 22 })}</div>
                   <div style={{ overflow: 'hidden' }}>
-                    <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.title}</h3>
+                    <h3 style={{ margin: 0, fontSize: activeSectionId ? '0.78rem' : '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{sectionDisplayTitles[s.id] || s.title}</h3>
                     {!activeSectionId && <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.7 }}>{s.subtitle}</p>}
                   </div>
                 </button>
