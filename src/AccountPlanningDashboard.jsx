@@ -42,11 +42,11 @@ const DEFAULT_FORM_CONFIG = [
     title: 'Account Potential',
     subtitle: 'History and strategic goals',
     fields: [
-      { key: 'review', label: 'Review & History', type: 'textarea', placeholder: 'Recent milestones and history...', width: 'half' },
-      { key: 'expectations', label: 'Expectations', type: 'textarea', placeholder: 'What does the customer expect?', width: 'half' },
-      { key: 'goals', label: 'Strategic Goals', type: 'textarea', placeholder: 'Top 3 business goals', width: 'full' },
-      { key: 'proposal', label: 'Proposal (Number only)', type: 'number', placeholder: 'Enter proposal amount', width: 'half' },
-      { key: 'revisedProposal', label: 'Revised Proposal (Number only)', type: 'number', placeholder: 'Enter revised proposal amount', width: 'half' }
+      { key: 'review', label: 'History', type: 'textarea', placeholder: 'Recent history...', width: 'half' },
+      { key: 'expectations', label: 'Needs', type: 'textarea', placeholder: 'Customer needs...', width: 'half' },
+      { key: 'goals', label: 'Goals', type: 'textarea', placeholder: 'Top goals...', width: 'full' },
+      { key: 'proposal', label: 'Proposal', type: 'number', placeholder: 'Proposal amount', width: 'half' },
+      { key: 'revisedProposal', label: 'Revised', type: 'number', placeholder: 'Revised amount', width: 'half' }
     ]
   },
   {
@@ -343,9 +343,20 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   };
 
   const renderSectionContent = (section) => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '1.5rem', rowGap: '1rem' }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+        columnGap: '1.5rem',
+        rowGap: section.id === 'accountPotential' ? '0.75rem' : '1rem'
+      }}
+    >
       {section.fields.map((field) => (
-        <div key={field.key} className="form-group" style={{ gridColumn: field.width === 'half' ? 'span 1' : '1 / -1' }}>
+        <div
+          key={field.key}
+          className={`form-group ${section.id === 'accountPotential' ? 'form-group-compact' : ''}`}
+          style={{ gridColumn: field.width === 'half' ? 'span 1' : '1 / -1' }}
+        >
           <label>{field.label}</label>
           {renderField(field, section)}
         </div>
