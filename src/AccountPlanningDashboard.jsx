@@ -33,8 +33,7 @@ const DEFAULT_FORM_CONFIG = [
       { key: 'contactPerson', label: 'Contact', type: 'text', placeholder: 'Full name', width: 'half' },
       { key: 'email', label: 'Email Address', type: 'email', placeholder: 'email@company.com', width: 'half' },
       { key: 'whatsapp', label: 'WhatsApp Number', type: 'text', placeholder: 'WhatsApp number', width: 'half' },
-      { key: 'phone', label: 'Phone (Primary)', type: 'text', placeholder: '+1 555-0123', width: 'half' },
-      { key: 'mobile2', label: 'Secondary Mobile', type: 'text', placeholder: '+1 555-4567', width: 'half' }
+      { key: 'phone', label: 'Phone Number', type: 'text', placeholder: '+1 555-0123', width: 'half' }
     ]
   },
   {
@@ -113,6 +112,14 @@ const normalizeField = (field, defaultField) => {
       ...merged,
       label: 'Contact',
       placeholder: 'Full name',
+      width: 'half'
+    };
+  }
+  if (merged.key === 'phone') {
+    return {
+      ...merged,
+      label: 'Phone Number',
+      placeholder: '+1 555-0123',
       width: 'half'
     };
   }
@@ -236,7 +243,6 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     additionalContacts: [],
     email: '',
     phone: '',
-    mobile2: '',
     whatsapp: '',
     industry: '',
     review: '',
@@ -452,7 +458,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
             <input className="input-field" type="text" placeholder="Full name" value={formData.contactPerson || ''} onChange={(e) => handleInputChange('contactPerson', e.target.value)} />
           </div>
           <div className="form-group">
-            <label>Phone (Primary)</label>
+            <label>Phone Number</label>
             <input className="input-field" type="text" placeholder="+1 555-0123" value={formData.phone || ''} onChange={(e) => handleInputChange('phone', e.target.value)} />
           </div>
 
@@ -488,11 +494,6 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
           <div className="form-group">
             <label>WhatsApp Number</label>
             <input className="input-field" type="text" placeholder="WhatsApp number" value={formData.whatsapp || ''} onChange={(e) => handleInputChange('whatsapp', e.target.value)} />
-          </div>
-
-          <div className="form-group">
-            <label>Secondary Mobile</label>
-            <input className="input-field" type="text" placeholder="+1 555-4567" value={formData.mobile2 || ''} onChange={(e) => handleInputChange('mobile2', e.target.value)} />
           </div>
         </div>
       );
@@ -648,7 +649,6 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       additionalContacts: ensureAdditionalContacts(record.extraData?.additionalContacts),
       email: record.email || '',
       phone: record.phone || '',
-      mobile2: record.mobile2 || '',
       whatsapp: record.whatsapp || '',
       industry: record.industry || '',
       review: record.review || '',
@@ -704,7 +704,6 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       additionalContacts: [],
       email: '',
       phone: '',
-      mobile2: '',
       whatsapp: '',
       industry: '',
       review: '',
@@ -816,15 +815,9 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                         </div>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
-                            <Phone size={12} color="var(--text-muted)" />
-                            <span style={{ color: 'var(--text-muted)' }}>M2:</span> {r.mobile2 || 'N/A'}
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
-                            <Zap size={12} color="var(--success)" fill="var(--success)" />
-                            <span style={{ color: 'var(--text-muted)' }}>WA:</span> {r.whatsapp || 'N/A'}
-                          </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
+                          <Zap size={12} color="var(--success)" fill="var(--success)" />
+                          <span style={{ color: 'var(--text-muted)' }}>WA:</span> {r.whatsapp || 'N/A'}
                         </div>
                       </td>
                       <td>
