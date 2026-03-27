@@ -1153,24 +1153,52 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       <AnimatePresence>
         {showCustomizer && user?.role === 'admin' && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.5)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="glass-card" style={{ width: 'min(980px, 100%)', maxHeight: '85vh', overflowY: 'auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <h2 style={{ margin: 0, fontSize: '1.3rem' }}>Customize Form</h2>
-                <button onClick={() => setShowCustomizer(false)} style={{ border: 'none', background: 'transparent', fontSize: '1.3rem', cursor: 'pointer' }}>x</button>
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="glass-card" style={{ width: 'min(1120px, 100%)', maxHeight: '88vh', overflowY: 'auto', padding: 0 }}>
+              <div style={{ position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.4rem 1.5rem', borderBottom: '1px solid var(--border-light)', background: '#fff', borderTopLeftRadius: '1.25rem', borderTopRightRadius: '1.25rem' }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.3rem' }}>Customize Form</h2>
+                  <p style={{ margin: '0.25rem 0 0', color: 'var(--text-secondary)', fontSize: '0.86rem', fontWeight: 600 }}>
+                    Edit card titles, fields, and layout without touching code.
+                  </p>
+                </div>
+                <button onClick={() => setShowCustomizer(false)} style={{ width: '38px', height: '38px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '10px', fontSize: '1.1rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>x</button>
               </div>
+              <div style={{ padding: '1.25rem 1.5rem 1.5rem' }}>
               {configError && (
                 <div style={{ marginBottom: '1rem', padding: '0.8rem 1rem', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', color: 'var(--danger)', fontWeight: 700 }}>
                   {configError}
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
-                <button onClick={addSection} style={{ padding: '0.7rem 1rem', background: '#fff', border: '1px solid var(--border-light)', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 700 }}>
+                  {formConfig.length} cards configured
+                </div>
+                <button onClick={addSection} style={{ padding: '0.75rem 1rem', background: '#fff', border: '1px solid var(--border-light)', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: 'var(--shadow-sm)' }}>
                   Add New Card
                 </button>
               </div>
-              <div style={{ display: 'grid', gap: '1.25rem' }}>
+              <div style={{ display: 'grid', gap: '1rem' }}>
                 {formConfig.map((section) => (
-                  <div key={section.id} style={{ border: '1px solid var(--border-light)', borderRadius: '14px', padding: '1rem' }}>
+                  <div key={section.id} style={{ border: '1px solid var(--border-light)', borderRadius: '16px', overflow: 'hidden', background: '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', padding: '1rem 1rem 0.9rem', background: 'linear-gradient(180deg, rgba(241,245,249,0.85) 0%, rgba(255,255,255,0.98) 100%)', borderBottom: '1px solid var(--border-light)' }}>
+                      <div>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                          {section.id}
+                        </div>
+                        <div style={{ fontSize: '1rem', fontWeight: 800 }}>{section.title || 'Untitled Card'}</div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', flexWrap: 'wrap' }}>
+                        {section.id.startsWith('customSection') && (
+                          <button onClick={() => removeSection(section.id)} style={{ padding: '0.58rem 0.9rem', background: 'rgba(239,68,68,0.08)', color: 'var(--danger)', border: 'none', borderRadius: '9px', fontWeight: 700, cursor: 'pointer' }}>
+                            Delete Card
+                          </button>
+                        )}
+                        <button onClick={() => addFieldToSection(section.id)} style={{ padding: '0.58rem 0.9rem', background: 'var(--bg-home)', border: 'none', borderRadius: '9px', fontWeight: 700, cursor: 'pointer' }}>
+                          Add Field
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{ padding: '1rem' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                       <div className="form-group" style={{ marginBottom: 0 }}>
                         <label>Section Title</label>
@@ -1181,21 +1209,14 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                         <input className="input-field" value={section.subtitle} onChange={(e) => updateSectionMeta(section.id, 'subtitle', e.target.value)} />
                       </div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', marginBottom: '0.5rem' }}>
-                      {section.id.startsWith('customSection') && (
-                        <button onClick={() => removeSection(section.id)} style={{ padding: '0.55rem 0.85rem', background: 'rgba(239,68,68,0.08)', color: 'var(--danger)', border: 'none', borderRadius: '9px', fontWeight: 700, cursor: 'pointer' }}>
-                          Delete Card
-                        </button>
-                      )}
-                      <button onClick={() => addFieldToSection(section.id)} style={{ padding: '0.55rem 0.85rem', background: 'var(--bg-home)', border: 'none', borderRadius: '9px', fontWeight: 700, cursor: 'pointer' }}>
-                        Add Field
-                      </button>
-                    </div>
-                    <div style={{ display: 'grid', gap: '0.85rem' }}>
+                    <div style={{ display: 'grid', gap: '0.8rem' }}>
                       {section.fields.map((field) => (
-                        <div key={field.key} style={{ borderTop: '1px solid var(--border-light)', paddingTop: '0.85rem' }}>
-                          <div style={{ fontWeight: 800, marginBottom: '0.75rem' }}>{field.key}</div>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '0.75rem' }}>
+                        <div key={field.key} style={{ border: '1px solid var(--border-light)', borderRadius: '12px', padding: '0.9rem', background: '#fbfdff' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                            <div style={{ fontWeight: 800 }}>{field.key}</div>
+                            <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700 }}>{field.type}</div>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label>Label</label>
                               <input className="input-field" value={field.label || ''} onChange={(e) => updateSectionField(section.id, field.key, 'label', e.target.value)} />
@@ -1238,16 +1259,23 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
                         </div>
                       ))}
                     </div>
+                    </div>
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                  Changes apply after you save the form config.
+                </div>
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button onClick={() => setFormConfig(DEFAULT_FORM_CONFIG)} style={{ padding: '0.7rem 1rem', background: 'var(--bg-home)', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
                   Reset Defaults
                 </button>
                 <button onClick={handleConfigSave} disabled={isSavingConfig} style={{ padding: '0.7rem 1rem', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 800, cursor: 'pointer' }}>
                   {isSavingConfig ? 'Saving...' : 'Save Form Config'}
                 </button>
+              </div>
+              </div>
               </div>
             </motion.div>
           </div>
