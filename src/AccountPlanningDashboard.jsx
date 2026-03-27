@@ -220,10 +220,20 @@ const buildEmptyFormData = (config, source = {}) => {
   return next;
 };
 
+const ensureAdditionalContacts = (value) => (
+  Array.isArray(value)
+    ? value.map((entry) => ({
+        name: entry?.name || '',
+        phone: entry?.phone || ''
+      }))
+    : []
+);
+
 const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
   const [formData, setFormData] = useState(buildEmptyFormData(DEFAULT_FORM_CONFIG, {
     companyName: '',
     contactPerson: '',
+    additionalContacts: [],
     email: '',
     phone: '',
     mobile2: '',
@@ -336,6 +346,33 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const additionalContacts = ensureAdditionalContacts(formData.additionalContacts);
+
+  const addAdditionalContact = () => {
+    setFormData((prev) => ({
+      ...prev,
+      additionalContacts: [...ensureAdditionalContacts(prev.additionalContacts), { name: '', phone: '' }]
+    }));
+  };
+
+  const updateAdditionalContact = (index, field, value) => {
+    setFormData((prev) => {
+      const nextContacts = ensureAdditionalContacts(prev.additionalContacts);
+      nextContacts[index] = {
+        ...nextContacts[index],
+        [field]: value
+      };
+      return { ...prev, additionalContacts: nextContacts };
+    });
+  };
+
+  const removeAdditionalContact = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      additionalContacts: ensureAdditionalContacts(prev.additionalContacts).filter((_, contactIndex) => contactIndex !== index)
+    }));
+  };
+
   const sections = formConfig.map((section) => ({
     ...section,
     icon: sectionIcons[section.id] || <Briefcase />
@@ -397,27 +434,92 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     );
   };
 
-  const renderSectionContent = (section) => (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-        columnGap: '1.5rem',
-        rowGap: section.id === 'accountPotential' ? '0.75rem' : '1rem'
-      }}
-    >
-      {section.fields.map((field) => (
-        <div
-          key={field.key}
-          className={`form-group ${section.id === 'accountPotential' ? 'form-group-compact' : ''}`}
-          style={{ gridColumn: field.width === 'half' ? 'span 1' : '1 / -1' }}
-        >
-          <label>{field.label}</label>
-          {renderField(field, section)}
+  const renderSectionContent = (section) => {
+    if (section.id === 'customerDetails') {
+      return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '1.5rem', rowGap: '1rem' }}>
+          <div className="form-group">
+            <label>Company Name</label>
+            <input className="input-field" type="text" placeholder="Acme Corp" value={formData.companyName || ''} onChange={(e) => handleInputChange('companyName', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Industry</label>
+            <input className="input-field" type="text" placeholder="e.g. Technology" value={formData.industry || ''} onChange={(e) => handleInputChange('industry', e.target.value)} />
+          </div>
+
+          <div className="form-group">
+            <label>Contact</label>
+            <input className="input-field" type="text" placeholder="Full name" value={formData.contactPerson || ''} onChange={(e) => handleInputChange('contactPerson', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Phone (Primary)</label>
+            <input className="input-field" type="text" placeholder="+1 555-0123" value={formData.phone || ''} onChange={(e) => handleInputChange('phone', e.target.value)} />
+          </div>
+
+          <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '-0.15rem' }}>
+            <button type="button" className="inline-add-button" onClick={addAdditionalContact}>
+              <PlusCircle size={16} />
+              Add Contact
+            </button>
+          </div>
+
+          {additionalContacts.map((contact, index) => (
+            <React.Fragment key={`additional-contact-${index}`}>
+              <div className="form-group">
+                <label>{`Contact ${index + 2}`}</label>
+                <input className="input-field" type="text" placeholder="Full name" value={contact.name} onChange={(e) => updateAdditionalContact(index, 'name', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>{`Phone ${index + 2}`}</label>
+                <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center' }}>
+                  <input className="input-field" type="text" placeholder="+1 555-0000" value={contact.phone} onChange={(e) => updateAdditionalContact(index, 'phone', e.target.value)} />
+                  <button type="button" className="inline-remove-button" onClick={() => removeAdditionalContact(index)}>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </React.Fragment>
+          ))}
+
+          <div className="form-group">
+            <label>Email Address</label>
+            <input className="input-field" type="email" placeholder="email@company.com" value={formData.email || ''} onChange={(e) => handleInputChange('email', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>WhatsApp Number</label>
+            <input className="input-field" type="text" placeholder="WhatsApp number" value={formData.whatsapp || ''} onChange={(e) => handleInputChange('whatsapp', e.target.value)} />
+          </div>
+
+          <div className="form-group">
+            <label>Secondary Mobile</label>
+            <input className="input-field" type="text" placeholder="+1 555-4567" value={formData.mobile2 || ''} onChange={(e) => handleInputChange('mobile2', e.target.value)} />
+          </div>
         </div>
-      ))}
-    </div>
-  );
+      );
+    }
+
+    return (
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          columnGap: '1.5rem',
+          rowGap: section.id === 'accountPotential' ? '0.75rem' : '1rem'
+        }}
+      >
+        {section.fields.map((field) => (
+          <div
+            key={field.key}
+            className={`form-group ${section.id === 'accountPotential' ? 'form-group-compact' : ''}`}
+            style={{ gridColumn: field.width === 'half' ? 'span 1' : '1 / -1' }}
+          >
+            <label>{field.label}</label>
+            {renderField(field, section)}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   const updateSectionField = (sectionId, fieldKey, property, value) => {
     setFormConfig((prev) => prev.map((section) => (
@@ -543,6 +645,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
       _id: record._id,
       companyName: record.companyName || '',
       contactPerson: record.contactPerson || '',
+      additionalContacts: ensureAdditionalContacts(record.extraData?.additionalContacts),
       email: record.email || '',
       phone: record.phone || '',
       mobile2: record.mobile2 || '',
@@ -598,6 +701,7 @@ const AccountPlanningDashboard = ({ view = 'form', user, token }) => {
     setFormData(buildEmptyFormData(formConfig, {
       companyName: '',
       contactPerson: '',
+      additionalContacts: [],
       email: '',
       phone: '',
       mobile2: '',
